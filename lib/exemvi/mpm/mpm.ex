@@ -1,9 +1,34 @@
 defmodule Exemvi.MPM do
 
+  @moduledoc """
+  Helpers for MPM (Merchant Presented Mode)
+  """
   def parse(payload) do
     case parse_rest(payload, []) do
       {:error, reason} -> {:error, reason}
       {:ok, tlvs} -> {:ok, Enum.reverse(tlvs)}
+    end
+  end
+
+  def validate(tlvs) do
+    {:error, []}
+  end
+
+  def validate_mandatory_fields(tlvs) do
+    data_object_atoms = Enum.map(
+      tlvs,
+      fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) end)
+
+    mandatories = Exemvi.MPM.DataObject.mandatories()
+
+    errors = Enum.reduce(
+      mandatories,
+      [],
+      fn x, acc -> mandatory_data_object_exists(data_object_atoms, x, acc) end)
+
+    case Enum.count(errors) do
+      0 -> {:ok, nil}
+      _ -> {:error, errors}
     end
   end
 
@@ -12,28 +37,35 @@ defmodule Exemvi.MPM do
   end
 
   defp parse_rest(payload, tlvs) do
-    datob = payload |> String.slice(0, 2)
-    datlen = payload |> String.slice(2, 2)
-
-    with {datlen_int, _} <- payload
-                            |> String.slice(2, 2)
-                            |> Integer.parse()
+    with data_object = payload |> String.slice(0, 2),
+         {data_length, _} <- payload
+                             |> String.slice(2, 2)
+                             |> Integer.parse()
     do
-      datval = String.slice(payload, 4, datlen_int)
+      data_value = String.slice(payload, 4, data_length)
       tlvs_new =
         [
           %Exemvi.TLV
           {
-            data_object: datob,
-            data_length: datlen,
-            data_value: datval
+            data_object: data_object,
+            data_value: data_value
           }
           | tlvs
         ]
-      rest = String.slice(payload, (4+datlen_int)..-1)
+
+      rest = String.slice(payload, (4 + data_length)..-1)
       parse_rest(rest, tlvs_new)
     else
-      :error -> {:error, Exemvi.Error.invalid_data_length}
+      :error -> {:error, [Exemvi.Error.invalid_data_length]}
     end
   end
+
+  defp mandatory_data_object_exists(data_object_atoms, mandatory_atom, errors) do
+    if Enum.member?(data_object_atoms, mandatory_atom) do
+      errors
+    else
+      [Exemvi.Error.missing_data_object(mandatory_atom) | errors]
+    end
+  end
+
 end

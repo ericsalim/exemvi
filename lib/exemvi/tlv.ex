@@ -1,3 +1,7 @@
 defmodule Exemvi.TLV do
-  defstruct [:data_object, :data_length, :data_value]
+
+  defstruct [
+    :data_object,
+    :data_value
+  ]
 end
