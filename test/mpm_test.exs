@@ -35,6 +35,8 @@ defmodule MPMTest do
       assert merchant_info.data_object == "64"
       assert merchant_info.data_value == "0002ZH0104最佳运输0202北京"
 
+      assert false, "Additional data 62"
+
       # Check checksum
       checksum = Enum.at(tlvs, 14)
       assert checksum.data_object == "63"
@@ -55,7 +57,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :payload_format_indicator end)
-    {:error, reasons} = Exemvi.MPM.validate_mandatory_fields(test_data)
+    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:payload_format_indicator))
@@ -73,7 +75,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :merchant_account_information end)
-    {:error, reasons} = Exemvi.MPM.validate_mandatory_fields(test_data)
+    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:merchant_account_information))
@@ -87,7 +89,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :merchant_category_code end)
-    {:error, reasons} = Exemvi.MPM.validate_mandatory_fields(test_data)
+    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:merchant_category_code))
@@ -101,7 +103,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :transaction_currency end)
-    {:error, reasons} = Exemvi.MPM.validate_mandatory_fields(test_data)
+    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:transaction_currency))
@@ -127,7 +129,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :country_code end)
-    {:error, reasons} = Exemvi.MPM.validate_mandatory_fields(test_data)
+    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:country_code))
@@ -137,7 +139,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :merchant_name end)
-    {:error, reasons} = Exemvi.MPM.validate_mandatory_fields(test_data)
+    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:merchant_name))
@@ -147,7 +149,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :merchant_city end)
-    {:error, reasons} = Exemvi.MPM.validate_mandatory_fields(test_data)
+    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:merchant_city))

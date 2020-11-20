@@ -14,7 +14,7 @@ defmodule Exemvi.MPM do
     {:error, []}
   end
 
-  def validate_mandatory_fields(tlvs) do
+  def validate(tlvs, :mandatory) do
     data_object_atoms = Enum.map(
       tlvs,
       fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) end)
@@ -24,7 +24,7 @@ defmodule Exemvi.MPM do
     errors = Enum.reduce(
       mandatories,
       [],
-      fn x, acc -> mandatory_data_object_exists(data_object_atoms, x, acc) end)
+      fn x, acc -> data_object_exists(data_object_atoms, x, acc) end)
 
     case Enum.count(errors) do
       0 -> {:ok, nil}
@@ -60,11 +60,11 @@ defmodule Exemvi.MPM do
     end
   end
 
-  defp mandatory_data_object_exists(data_object_atoms, mandatory_atom, errors) do
-    if Enum.member?(data_object_atoms, mandatory_atom) do
+  defp data_object_exists(data_object_atoms, atom, errors) do
+    if Enum.member?(data_object_atoms, atom) do
       errors
     else
-      [Exemvi.Error.missing_data_object(mandatory_atom) | errors]
+      [Exemvi.Error.missing_data_object(atom) | errors]
     end
   end
 

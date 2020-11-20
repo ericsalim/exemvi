@@ -7,7 +7,7 @@ defmodule Exemvi.MixProject do
       version: "0.1.0",
       elixir: "~> 1.11",
       name: "Exemvi",
-      description: "A library that helps parsing and generating EMV QRCPS and QRIS",
+      description: "A library that helps parsing and generating EMV QRCPS",
       package: package()
     ]
   end
