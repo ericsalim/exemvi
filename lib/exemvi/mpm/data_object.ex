@@ -1,5 +1,5 @@
 defmodule Exemvi.MPM.DataObject do
-  @definition [
+  @specification [
     %{code: "00", atom: :payload_format_indicator,                maxlen:  2, format: :num, mandatory: true },
     %{code: "01", atom: :point_of_initiation_method,              maxlen:  2, format: :num, mandatory: false},
     %{code: "02", atom: :merchant_account_information,            maxlen: 99, format: :ans, mandatory: true },
@@ -103,12 +103,12 @@ defmodule Exemvi.MPM.DataObject do
   ]
 
   def to_atom(raw_data_object) do
-    found = Enum.find(@definition, fn x -> x[:code] == raw_data_object end)
+    found = Enum.find(@specification, fn x -> x[:code] == raw_data_object end)
     nil || found[:atom]
   end
 
   def mandatories() do
-    @definition
+    @specification
     |> Enum.filter(fn x -> x[:mandatory] end)
     |> Enum.map(fn x -> x[:atom] end)
   end

@@ -3,6 +3,26 @@ defmodule Exemvi.MPM do
   @moduledoc """
   Helpers for MPM (Merchant Presented Mode)
   """
+
+  def validate_payload(payload) do
+
+    payload_format_indicator = String.slice(payload, 0, 6)
+
+    payload_length = String.length(payload)
+    without_checksum = String.slice(payload, 0, payload_length - 4)
+    payload_checksum = String.slice(payload, payload_length - 4, 4)
+    expected_checksum = Exemvi.CRC.checksum_hex(without_checksum)
+
+    all_ok = payload_format_indicator == "000201"
+    all_ok = all_ok and payload_checksum == expected_checksum
+
+    if all_ok do
+      {:ok, nil}
+    else
+      {:error, Exemvi.Error.invalid_payload}
+    end
+  end
+
   def parse(payload) do
     case parse_rest(payload, []) do
       {:error, reason} -> {:error, reason}
@@ -37,7 +57,7 @@ defmodule Exemvi.MPM do
   end
 
   defp parse_rest(payload, tlvs) do
-    with data_object = payload |> String.slice(0, 2),
+    with data_object <- payload |> String.slice(0, 2),
          {data_length, _} <- payload
                              |> String.slice(2, 2)
                              |> Integer.parse()

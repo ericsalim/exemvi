@@ -35,7 +35,7 @@ defmodule MPMTest do
       assert merchant_info.data_object == "64"
       assert merchant_info.data_value == "0002ZH0104最佳运输0202北京"
 
-      assert false, "Additional data 62"
+      assert false, "TBD Additional data 62"
 
       # Check checksum
       checksum = Enum.at(tlvs, 14)
@@ -51,6 +51,13 @@ defmodule MPMTest do
     {result, reasons} = Exemvi.MPM.parse(payload)
     assert result == :error
     assert Enum.member?(reasons, :invalid_data_length)
+  end
+
+  test "payload format indicator is not the first data object" do
+    wrong_payload = @official_sample <> "01"
+
+    {:error, reason} = Exemvi.MPM.validate_payload(wrong_payload)
+    assert reason == Exemvi.Error.invalid_payload
   end
 
   test "payload format indicator is missing" do
@@ -156,6 +163,12 @@ defmodule MPMTest do
   end
 
   test "checksum is invalid" do
-    assert false, "TBD"
+    start_of_checksum = String.length(@official_sample) - 4
+    without_checksum = String.slice(@official_sample, 0, start_of_checksum)
+    wrong_checksum = "ABCD"
+    wrong_payload = without_checksum <> wrong_checksum
+
+    {:error, reason} = Exemvi.MPM.validate_payload(wrong_payload)
+    assert reason == Exemvi.Error.invalid_payload
   end
 end

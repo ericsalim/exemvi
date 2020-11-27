@@ -3,6 +3,7 @@ defmodule Exemvi.Error do
   # Must be ordered alphabetically
 
   def invalid_data_length, do: :invalid_data_length
+  def invalid_payload, do: :invalid_payload
   def missing_data_object(:payload_format_indicator), do: :missing_payload_format_indicator
   def missing_data_object(:merchant_account_information), do: :missing_merchant_account_information
   def missing_data_object(:merchant_category_code), do: :missing_merchant_category_code
