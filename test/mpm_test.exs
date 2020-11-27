@@ -20,7 +20,7 @@ defmodule MPMTest do
     %Exemvi.TLV{data_object: "63", data_value: "A13A"}
   ]
 
-  test "successful" do
+  test "entire payload: successful" do
     with {:ok, tlvs} <- Exemvi.MPM.parse(@official_sample)
     do
       # Check only some fields
@@ -46,15 +46,25 @@ defmodule MPMTest do
     end
   end
 
-  test "data length is not numeric" do
+  test "entire payload: data length is not numeric" do
     payload = "00A201"
     {result, reasons} = Exemvi.MPM.parse(payload)
     assert result == :error
     assert Enum.member?(reasons, :invalid_data_length)
   end
 
-  test "payload format indicator is not the first data object" do
+  test "entire payload: does not start with payload format indicator" do
     wrong_payload = @official_sample <> "01"
+
+    {:error, reason} = Exemvi.MPM.validate_payload(wrong_payload)
+    assert reason == Exemvi.Error.invalid_payload
+  end
+
+  test "entire payload: checksum is invalid" do
+    start_of_checksum = String.length(@official_sample) - 4
+    without_checksum = String.slice(@official_sample, 0, start_of_checksum)
+    wrong_checksum = "ABCD"
+    wrong_payload = without_checksum <> wrong_checksum
 
     {:error, reason} = Exemvi.MPM.validate_payload(wrong_payload)
     assert reason == Exemvi.Error.invalid_payload
@@ -70,12 +80,12 @@ defmodule MPMTest do
       Exemvi.Error.missing_data_object(:payload_format_indicator))
   end
 
-  test "payload format indicator is invalid" do
-    assert false, "TBD"
+  test "payload format indicator value is not 01" do
+    assert false, "TODO"
   end
 
-  test "point of initiation is invalid" do
-    assert false, "TBD"
+  test "point of initiation value is not 11 or 12" do
+    assert false, "TODO"
   end
 
   test "merchant account information is missing" do
@@ -88,8 +98,8 @@ defmodule MPMTest do
       Exemvi.Error.missing_data_object(:merchant_account_information))
   end
 
-  test "merchant account information is invalid" do
-    assert false, "TBD"
+  test "merchant account information data object is not between 02 and 51" do
+    assert false, "TODO"
   end
 
   test "merchant category code is missing" do
@@ -102,8 +112,8 @@ defmodule MPMTest do
       Exemvi.Error.missing_data_object(:merchant_category_code))
   end
 
-  test "merchant category code is invalid" do
-    assert false, "TBD"
+  test "merchant category code value is not 4 digits" do
+    assert false, "TODO"
   end
 
   test "transaction currency is missing" do
@@ -116,20 +126,32 @@ defmodule MPMTest do
       Exemvi.Error.missing_data_object(:transaction_currency))
   end
 
-  test "transaction currency is invalid" do
-    assert false, "TBD"
+  test "transaction currency value is not 3 digits" do
+    assert false, "TODO"
   end
 
-  test "convenience indicator is invalid" do
-    assert false, "TBD"
+  test "transaction amount value is longer than 13 chars" do
+    assert false, "TODO"
+  end
+
+  test "convenience indicator is not 2 digits" do
+    assert false, "TODO"
   end
 
   test "convenience fee is orphaned" do
-    assert false, "TBD"
+    assert false, "TODO"
+  end
+
+  test "convenience fee fixed is longer than 13 chars" do
+    assert false, "TODO"
   end
 
   test "convenience fee percentage is orphaned" do
-    assert false, "TBD"
+    assert false, "TODO"
+  end
+
+  test "convenience fee percentage is longer than 5 chars" do
+    assert false, "TODO"
   end
 
   test "country code is missing" do
@@ -142,6 +164,10 @@ defmodule MPMTest do
       Exemvi.Error.missing_data_object(:country_code))
   end
 
+  test "country code is longer than 2 chars" do
+    assert false, "TODO"
+  end
+
   test "merchant name is missing" do
     test_data = Enum.filter(
       @official_tlv,
@@ -150,6 +176,10 @@ defmodule MPMTest do
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:merchant_name))
+  end
+
+  test "merchant name is longer than 25 chars" do
+    assert false, "TODO"
   end
 
   test "merchant city is missing" do
@@ -162,13 +192,15 @@ defmodule MPMTest do
       Exemvi.Error.missing_data_object(:merchant_city))
   end
 
-  test "checksum is invalid" do
-    start_of_checksum = String.length(@official_sample) - 4
-    without_checksum = String.slice(@official_sample, 0, start_of_checksum)
-    wrong_checksum = "ABCD"
-    wrong_payload = without_checksum <> wrong_checksum
+  test "merchant city is longer than 15 chars" do
+    assert false, "TODO"
+  end
 
-    {:error, reason} = Exemvi.MPM.validate_payload(wrong_payload)
-    assert reason == Exemvi.Error.invalid_payload
+  test "postal code is longer than 10 chars" do
+    assert false, "TODO"
+  end
+
+  test "additional data template exists" do
+    assert false, "TODO"
   end
 end
