@@ -30,26 +30,46 @@ defmodule Exemvi.MPM do
     end
   end
 
-  def validate(tlvs) do
-    {:error, []}
+  def validate(tlvs, :all) do
+    reasons = []
+    {_, mandatory_reasons} = validate(tlvs, :mandatory)
+    {_, spec_reasons} = validate(tlvs, :spec)
+
+    reasons = reasons ++ (mandatory_reasons || [])
+    reasons = reasons ++ (spec_reasons || [])
+
+    if Enum.count(reasons) == 0 do
+      {:ok, nil}
+    else
+      {:error, reasons}
+    end
   end
 
   def validate(tlvs, :mandatory) do
-    data_object_atoms = Enum.map(
+    mandatories =
+      Exemvi.MPM.DataObject.specifications()
+      |> Enum.filter(fn x -> x[:mandatory] end)
+      |> Enum.map(fn x -> Map.get(x, :atom) end)
+
+    code_atoms = Exemvi.MPM.DataObject.code_atoms()
+    tlv_data_objects = Enum.map(
       tlvs,
-      fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) end)
+      fn x -> code_atoms[x.data_object] end)
 
-    mandatories = Exemvi.MPM.DataObject.mandatories()
-
-    errors = Enum.reduce(
+    reasons = Enum.reduce(
       mandatories,
       [],
-      fn x, acc -> data_object_exists(data_object_atoms, x, acc) end)
+      fn mandatory_atom, reason_acc -> data_object_exists(tlv_data_objects, mandatory_atom, reason_acc) end)
 
-    case Enum.count(errors) do
-      0 -> {:ok, nil}
-      _ -> {:error, errors}
+    if Enum.count(reasons) == 0 do
+      {:ok, nil}
+    else
+      {:error, reasons}
     end
+  end
+
+  def validate(tlvs, :spec) do
+    validate_specs_rest(tlvs, [])
   end
 
   defp parse_rest("", tlvs) do
@@ -57,11 +77,11 @@ defmodule Exemvi.MPM do
   end
 
   defp parse_rest(payload, tlvs) do
-    with data_object <- payload |> String.slice(0, 2),
-         {data_length, _} <- payload
+    with {data_length, ""} <- payload
                              |> String.slice(2, 2)
                              |> Integer.parse()
     do
+      data_object = payload |> String.slice(0, 2)
       data_value = String.slice(payload, 4, data_length)
       tlvs_new =
         [
@@ -76,16 +96,58 @@ defmodule Exemvi.MPM do
       rest = String.slice(payload, (4 + data_length)..-1)
       parse_rest(rest, tlvs_new)
     else
-      :error -> {:error, [Exemvi.Error.invalid_data_length]}
+      _ -> {:error, [Exemvi.Error.invalid_data_length]}
     end
   end
 
-  defp data_object_exists(data_object_atoms, atom, errors) do
+  defp data_object_exists(data_object_atoms, atom, reasons) do
     if Enum.member?(data_object_atoms, atom) do
-      errors
+      reasons
     else
-      [Exemvi.Error.missing_data_object(atom) | errors]
+      [Exemvi.Error.missing_data_object(atom) | reasons]
     end
   end
 
+  defp validate_specs_rest([], reasons) do
+    if Enum.count(reasons) == 0 do
+      {:ok, nil}
+    else
+      {:error, reasons}
+    end
+  end
+
+  defp validate_specs_rest(tlvs, reasons) do
+    [tlv | tlv_rest] = tlvs
+
+    reasons = case validate_tlv(tlv) do
+      {:error, invalid_reason} -> reasons ++ invalid_reason
+      _ -> reasons
+    end
+
+    validate_specs_rest(tlv_rest, reasons)
+  end
+
+  defp validate_tlv(tlv) do
+    spec = Enum.find(
+      Exemvi.MPM.DataObject.specifications(),
+      fn x -> Map.get(x, :code) == tlv.data_object end)
+
+    max_len = spec[:max_len]
+    actual_len = String.length(tlv.data_value)
+
+    format = spec[:format]
+    is_numeric = case Integer.parse(tlv.data_value) do
+      {_, ""} -> true
+      _ -> false
+    end
+
+    data_object_atom = Exemvi.MPM.DataObject.code_atoms()[tlv.data_object]
+    reason = Exemvi.Error.invalid_data_object(data_object_atom)
+
+    cond do
+      actual_len > max_len -> {:error, reason}
+      format == :num and not is_numeric -> {:error, reason}
+      true -> {:ok, nil}
+    end
+  end
 end

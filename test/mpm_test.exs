@@ -73,7 +73,7 @@ defmodule MPMTest do
   test "payload format indicator is missing" do
     test_data = Enum.filter(
       @official_tlv,
-      fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :payload_format_indicator end)
+      fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :payload_format_indicator end)
     {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
@@ -91,7 +91,7 @@ defmodule MPMTest do
   test "merchant account information is missing" do
     test_data = Enum.filter(
       @official_tlv,
-      fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :merchant_account_information end)
+      fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :merchant_account_information end)
     {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
@@ -105,7 +105,7 @@ defmodule MPMTest do
   test "merchant category code is missing" do
     test_data = Enum.filter(
       @official_tlv,
-      fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :merchant_category_code end)
+      fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :merchant_category_code end)
     {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
@@ -119,7 +119,7 @@ defmodule MPMTest do
   test "transaction currency is missing" do
     test_data = Enum.filter(
       @official_tlv,
-      fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :transaction_currency end)
+      fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :transaction_currency end)
     {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
@@ -157,7 +157,7 @@ defmodule MPMTest do
   test "country code is missing" do
     test_data = Enum.filter(
       @official_tlv,
-      fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :country_code end)
+      fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :country_code end)
     {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
@@ -171,7 +171,7 @@ defmodule MPMTest do
   test "merchant name is missing" do
     test_data = Enum.filter(
       @official_tlv,
-      fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :merchant_name end)
+      fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :merchant_name end)
     {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
@@ -185,7 +185,7 @@ defmodule MPMTest do
   test "merchant city is missing" do
     test_data = Enum.filter(
       @official_tlv,
-      fn x -> Exemvi.MPM.DataObject.to_atom(x.data_object) != :merchant_city end)
+      fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :merchant_city end)
     {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
     assert Enum.member?(
       reasons,
