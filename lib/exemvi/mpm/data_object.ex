@@ -104,24 +104,24 @@ defmodule Exemvi.MPM.DataObject do
   }
 
   @specifications [
-    %{atom: :payload_format_indicator,                maxlen:  2, format: :num, mandatory: true },
-    %{atom: :point_of_initiation_method,              maxlen:  2, format: :num, mandatory: false},
-    %{atom: :merchant_account_information,            maxlen: 99, format: :ans, mandatory: true },
-    %{atom: :merchant_category_code,                  maxlen:  4, format: :num, mandatory: true },
-    %{atom: :transaction_currency,                    maxlen:  3, format: :num, mandatory: true },
-    %{atom: :transaction_amount,                      maxlen: 13, format: :ans, mandatory: false},
-    %{atom: :tip_or_convenience_indicator,            maxlen:  2, format: :num, mandatory: false},
-    %{atom: :value_of_convenience_fee_fixed,          maxlen: 13, format: :ans, mandatory: false},
-    %{atom: :value_of_convenience_fee_percentage,     maxlen:  5, format: :ans, mandatory: false},
-    %{atom: :country_code,                            maxlen:  2, format: :ans, mandatory: true },
-    %{atom: :merchant_name,                           maxlen: 25, format: :ans, mandatory: true },
-    %{atom: :merchant_city,                           maxlen: 15, format: :ans, mandatory: true },
-    %{atom: :postal_code,                             maxlen: 10, format: :ans, mandatory: false},
-    %{atom: :additional_data_field_template,          maxlen: 99, format: :str, mandatory: false},
-    %{atom: :crc,                                     maxlen:  4, format: :ans, mandatory: true },
-    %{atom: :merchant_information_language_template,  maxlen: 99, format: :str, mandatory: false},
-    %{atom: :rfu_for_emvco,                           maxlen: 99, format: :str, mandatory: false},
-    %{atom: :unreserved_template,                     maxlen: 99, format: :str, mandatory: false}
+    %{atom: :payload_format_indicator,               must:  true, min_len: 2, max_len:  2, regex: ~r/(01)/},
+    %{atom: :point_of_initiation_method,             must: false, min_len: 2, max_len:  2, regex: ~r/(11)|(12)/},
+    %{atom: :merchant_account_information,           must:  true, min_len: 1, max_len: 99, regex: nil},
+    %{atom: :merchant_category_code,                 must:  true, min_len: 4, max_len:  4, regex: ~r/\d+/},
+    %{atom: :transaction_currency,                   must:  true, min_len: 3, max_len:  3, regex: ~r/\d+/},
+    %{atom: :transaction_amount,                     must: false, min_len: 1, max_len: 13, regex: ~r/(\d+\.\d+)|(^\d+$)/},
+    %{atom: :tip_or_convenience_indicator,           must: false, min_len: 2, max_len:  2, regex: ~r/\d+/},
+    %{atom: :value_of_convenience_fee_fixed,         must: false, min_len: 1, max_len: 13, regex: ~r/(\d+\.\d+)|(^\d+$)/},
+    %{atom: :value_of_convenience_fee_percentage,    must: false, min_len: 1, max_len:  5, regex: ~r/(\d+\.\d+)|(^\d+$)/},
+    %{atom: :country_code,                           must:  true, min_len: 2, max_len:  2, regex: ~r/[a-zA-Z]{2}/},
+    %{atom: :merchant_name,                          must:  true, min_len: 1, max_len: 25, regex: nil},
+    %{atom: :merchant_city,                          must:  true, min_len: 1, max_len: 15, regex: nil},
+    %{atom: :postal_code,                            must: false, min_len: 1, max_len: 10, regex: nil},
+    %{atom: :additional_data_field_template,         must: false, min_len: 1, max_len: 99, regex: nil},
+    %{atom: :crc,                                    must:  true, min_len: 1, max_len:  4, regex: nil},
+    %{atom: :merchant_information_language_template, must: false, min_len: 1, max_len: 99, regex: nil},
+    %{atom: :rfu_for_emvco,                          must: false, min_len: 1, max_len: 99, regex: nil},
+    %{atom: :unreserved_template,                    must: false, min_len: 1, max_len: 99, regex: nil}
   ]
 
   def code_atoms() do

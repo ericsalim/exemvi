@@ -48,9 +48,9 @@ defmodule MPMTest do
 
   test "entire payload: data length is not numeric" do
     payload = "00A201"
-    {result, reasons} = Exemvi.MPM.parse(payload)
+    {result, reason} = Exemvi.MPM.parse(payload)
     assert result == :error
-    assert Enum.member?(reasons, :invalid_data_length)
+    assert reason == :invalid_data_length
   end
 
   test "entire payload: does not start with payload format indicator" do
@@ -74,13 +74,13 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :payload_format_indicator end)
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
+    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:payload_format_indicator))
   end
 
-  test "payload format indicator value is not 01" do
+  test "payload format indicator is not 01" do
     assert false, "TODO"
   end
 
@@ -96,10 +96,6 @@ defmodule MPMTest do
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:merchant_account_information))
-  end
-
-  test "merchant account information data object is not between 02 and 51" do
-    assert false, "TODO"
   end
 
   test "merchant category code is missing" do
@@ -138,7 +134,7 @@ defmodule MPMTest do
     assert false, "TODO"
   end
 
-  test "convenience fee is orphaned" do
+  test "convenience fee fixed is orphaned" do
     assert false, "TODO"
   end
 
@@ -164,7 +160,7 @@ defmodule MPMTest do
       Exemvi.Error.missing_data_object(:country_code))
   end
 
-  test "country code is longer than 2 chars" do
+  test "country code is not 2 chars" do
     assert false, "TODO"
   end
 
@@ -200,7 +196,7 @@ defmodule MPMTest do
     assert false, "TODO"
   end
 
-  test "additional data template exists" do
+  test "additional data template is parsed into tlv" do
     assert false, "TODO"
   end
 end
