@@ -73,7 +73,7 @@ defmodule MPMTest do
   test "official tlv sample is valid" do
     test_data = @official_tlv
 
-    {result, _} = Exemvi.MPM.validate(test_data, :all)
+    {result, _} = Exemvi.MPM.validate_tlvs(test_data)
 
     assert result == :ok
   end
@@ -82,7 +82,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :payload_format_indicator end)
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:payload_format_indicator))
@@ -98,7 +98,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "02"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:payload_format_indicator))
@@ -114,7 +114,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "10"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:point_of_initiation_method))
@@ -124,7 +124,7 @@ defmodule MPMTest do
         Enum.find_index(test_data, fn x -> x.data_object == code end),
         %Exemvi.TLV{data_object: code, data_value: "13"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:point_of_initiation_method))
@@ -134,7 +134,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :merchant_account_information end)
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:merchant_account_information))
@@ -144,7 +144,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :merchant_category_code end)
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:merchant_category_code))
@@ -161,7 +161,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "12AB"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:merchant_category_code))
@@ -171,7 +171,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "123"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:merchant_category_code))
@@ -181,7 +181,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "12345"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:merchant_category_code))
@@ -191,7 +191,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :transaction_currency end)
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:transaction_currency))
@@ -207,7 +207,7 @@ defmodule MPMTest do
       0,
       %Exemvi.TLV{data_object: code, data_value: "12AB"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:transaction_currency))
@@ -217,7 +217,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "12"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:transaction_currency))
@@ -227,7 +227,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "1234"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:transaction_currency))
@@ -244,7 +244,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "12345678901234"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:transaction_amount))
@@ -254,7 +254,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "123456789012.4"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:transaction_amount))
@@ -271,7 +271,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "1A"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:tip_or_convenience_indicator))
@@ -281,7 +281,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "1"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:tip_or_convenience_indicator))
@@ -291,7 +291,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "123"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:tip_or_convenience_indicator))
@@ -312,7 +312,7 @@ defmodule MPMTest do
       0,
       %Exemvi.TLV{data_object: code, data_value: "12345678901234"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:value_of_convenience_fee_fixed))
@@ -322,7 +322,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "123456789012.4"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:value_of_convenience_fee_fixed))
@@ -342,7 +342,7 @@ defmodule MPMTest do
       0,
       %Exemvi.TLV{data_object: code, data_value: "123456"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:value_of_convenience_fee_percentage))
@@ -352,7 +352,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "1234.6"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:value_of_convenience_fee_percentage))
@@ -362,7 +362,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :country_code end)
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:country_code))
@@ -379,7 +379,7 @@ defmodule MPMTest do
       0,
       %Exemvi.TLV{data_object: code, data_value: "A"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:country_code))
@@ -389,7 +389,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "ABC"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:country_code))
@@ -399,7 +399,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :merchant_name end)
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:merchant_name))
@@ -415,7 +415,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:country_code))
@@ -425,7 +425,7 @@ defmodule MPMTest do
     test_data = Enum.filter(
       @official_tlv,
       fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] != :merchant_city end)
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :mandatory)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_data_object(:merchant_city))
@@ -441,7 +441,7 @@ defmodule MPMTest do
       Enum.find_index(test_data, fn x -> x.data_object == code end),
       %Exemvi.TLV{data_object: code, data_value: "ABCDEFGHIJKLMNOP"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:merchant_city))
@@ -457,7 +457,7 @@ defmodule MPMTest do
       0,
       %Exemvi.TLV{data_object: code, data_value: "ABCDEFGHIJK"})
 
-    {:error, reasons} = Exemvi.MPM.validate(test_data, :all)
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_data_object(:postal_code))
