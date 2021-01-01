@@ -52,9 +52,7 @@ defmodule Exemvi.MPM do
       |> Enum.filter(fn x -> x[:must] end)
       |> Enum.map(fn x -> Map.get(x, :atom) end)
 
-    tlv_data_objects = Enum.map(
-      tlvs,
-      fn x -> x.data_object end)
+    tlv_data_objects = Enum.map(tlvs, fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] end)
 
     reasons = Enum.reduce(
       mandatories,
@@ -98,11 +96,11 @@ defmodule Exemvi.MPM do
     end
   end
 
-  defp data_object_exists(data_object_atoms, atom, reasons) do
-    if Enum.member?(data_object_atoms, atom) do
+  defp data_object_exists(all_atoms, atom_to_check, reasons) do
+    if Enum.member?(all_atoms, atom_to_check) do
       reasons
     else
-      [Exemvi.Error.missing_data_object(atom) | reasons]
+      [Exemvi.Error.missing_data_object(atom_to_check) | reasons]
     end
   end
 
@@ -118,7 +116,7 @@ defmodule Exemvi.MPM do
     [tlv | tlv_rest] = tlvs
 
     reasons = case validate_tlv(tlv) do
-      {:error, invalid_reason} -> reasons ++ invalid_reason
+      {:error, invalid_reason} -> reasons ++ [invalid_reason]
       _ -> reasons
     end
 
@@ -142,7 +140,8 @@ defmodule Exemvi.MPM do
     if len_is_ok and format_is_ok do
       {:ok, nil}
     else
-      {:error, Exemvi.Error.invalid_data_object(tlv.data_object)}
+      data_object_atom = Exemvi.MPM.DataObject.code_atoms()[tlv.data_object]
+      {:error, Exemvi.Error.invalid_data_object(data_object_atom)}
     end
   end
 end

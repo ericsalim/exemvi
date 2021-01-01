@@ -104,16 +104,16 @@ defmodule Exemvi.MPM.DataObject do
   }
 
   @specifications [
-    %{atom: :payload_format_indicator,               must:  true, min_len: 2, max_len:  2, regex: ~r/(01)/},
-    %{atom: :point_of_initiation_method,             must: false, min_len: 2, max_len:  2, regex: ~r/(11)|(12)/},
+    %{atom: :payload_format_indicator,               must:  true, min_len: 2, max_len:  2, regex: ~r/(^01$)/},
+    %{atom: :point_of_initiation_method,             must: false, min_len: 2, max_len:  2, regex: ~r/(^11$)|(^12$)/},
     %{atom: :merchant_account_information,           must:  true, min_len: 1, max_len: 99, regex: nil},
-    %{atom: :merchant_category_code,                 must:  true, min_len: 4, max_len:  4, regex: ~r/\d+/},
-    %{atom: :transaction_currency,                   must:  true, min_len: 3, max_len:  3, regex: ~r/\d+/},
-    %{atom: :transaction_amount,                     must: false, min_len: 1, max_len: 13, regex: ~r/(\d+\.\d+)|(^\d+$)/},
-    %{atom: :tip_or_convenience_indicator,           must: false, min_len: 2, max_len:  2, regex: ~r/\d+/},
-    %{atom: :value_of_convenience_fee_fixed,         must: false, min_len: 1, max_len: 13, regex: ~r/(\d+\.\d+)|(^\d+$)/},
-    %{atom: :value_of_convenience_fee_percentage,    must: false, min_len: 1, max_len:  5, regex: ~r/(\d+\.\d+)|(^\d+$)/},
-    %{atom: :country_code,                           must:  true, min_len: 2, max_len:  2, regex: ~r/[a-zA-Z]{2}/},
+    %{atom: :merchant_category_code,                 must:  true, min_len: 4, max_len:  4, regex: ~r/^\d+$/},
+    %{atom: :transaction_currency,                   must:  true, min_len: 3, max_len:  3, regex: ~r/^\d+$/},
+    %{atom: :transaction_amount,                     must: false, min_len: 1, max_len: 13, regex: ~r/(^\d+\.\d+$)|(^\d+$)/},
+    %{atom: :tip_or_convenience_indicator,           must: false, min_len: 2, max_len:  2, regex: ~r/^\d+$/},
+    %{atom: :value_of_convenience_fee_fixed,         must: false, min_len: 1, max_len: 13, regex: ~r/(^\d+\.\d+$)|(^\d+$)/},
+    %{atom: :value_of_convenience_fee_percentage,    must: false, min_len: 1, max_len:  5, regex: ~r/(^\d+\.\d+$)|(^\d+$)/},
+    %{atom: :country_code,                           must:  true, min_len: 2, max_len:  2, regex: ~r/^[a-zA-Z]{2}$/},
     %{atom: :merchant_name,                          must:  true, min_len: 1, max_len: 25, regex: nil},
     %{atom: :merchant_city,                          must:  true, min_len: 1, max_len: 15, regex: nil},
     %{atom: :postal_code,                            must: false, min_len: 1, max_len: 10, regex: nil},
@@ -126,6 +126,12 @@ defmodule Exemvi.MPM.DataObject do
 
   def code_atoms() do
     @code_atoms
+  end
+
+  def code_by_atom(data_object_atom) do
+    code_atoms()
+    |> Enum.find(fn {_, v} -> v == data_object_atom end)
+    |> elem(0)
   end
 
   def specifications() do
