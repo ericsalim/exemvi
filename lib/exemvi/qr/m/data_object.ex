@@ -1,4 +1,4 @@
-defmodule Exemvi.MPM.DataObject do
+defmodule Exemvi.QR.M.DataObject do
 
   @code_atoms %{
     "00" => :payload_format_indicator,

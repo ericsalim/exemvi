@@ -19,7 +19,7 @@ defmodule Exemvi.Error do
   def invalid_data_object(:merchant_city), do: :invalid_merchant_city
   def invalid_data_object(:postal_code), do: :invalid_postal_code
 
-  def invalid_payload, do: :invalid_payload
+  def invalid_qr, do: :invalid_qr
 
   def missing_data_object(:payload_format_indicator), do: :missing_payload_format_indicator
   def missing_data_object(:merchant_account_information), do: :missing_merchant_account_information
