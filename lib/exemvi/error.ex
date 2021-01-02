@@ -30,5 +30,7 @@ defmodule Exemvi.Error do
   def missing_data_object(:merchant_city), do: :missing_merchant_city
   def missing_data_object(:crc), do: :missing_crc
 
+  def orphaned_data_object(:value_of_convenience_fee_fixed), do: :orphaned_value_of_convenience_fee_fixed
+  def orphaned_data_object(:value_of_convenience_fee_percentage), do: :orphaned_value_of_convenience_fee_percentage
 
 end

@@ -298,7 +298,27 @@ defmodule MPMTest do
   end
 
   test "convenience fee fixed is orphaned" do
-    assert false, "TODO"
+    test_data = @official_tlv
+
+    convenience_code = Exemvi.MPM.DataObject.code_by_atom(:tip_or_convenience_indicator)
+
+    test_data = List.delete_at(
+      test_data,
+      Enum.find_index(test_data, fn x -> x.data_object == convenience_code end))
+
+    test_data = List.insert_at(
+      test_data,
+      0,
+      %Exemvi.TLV
+      {
+        data_object: Exemvi.MPM.DataObject.code_by_atom(:value_of_convenience_fee_fixed),
+        data_value: "1"
+      })
+
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.orphaned_data_object(:value_of_convenience_fee_fixed))
   end
 
   test "convenience fee fixed is longer than 13 decimal digits" do
@@ -329,7 +349,27 @@ defmodule MPMTest do
   end
 
   test "convenience fee percentage is orphaned" do
-    assert false, "TODO"
+    test_data = @official_tlv
+
+    convenience_code = Exemvi.MPM.DataObject.code_by_atom(:tip_or_convenience_indicator)
+
+    test_data = List.delete_at(
+      test_data,
+      Enum.find_index(test_data, fn x -> x.data_object == convenience_code end))
+
+    test_data = List.insert_at(
+      test_data,
+      0,
+      %Exemvi.TLV
+      {
+        data_object: Exemvi.MPM.DataObject.code_by_atom(:value_of_convenience_fee_percentage),
+        data_value: "1"
+      })
+
+    {:error, reasons} = Exemvi.MPM.validate_tlvs(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.orphaned_data_object(:value_of_convenience_fee_percentage))
   end
 
   test "convenience fee percentage is longer than 5 decimal digits" do

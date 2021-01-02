@@ -104,24 +104,24 @@ defmodule Exemvi.MPM.DataObject do
   }
 
   @specifications [
-    %{atom: :payload_format_indicator,               must:  true, min_len: 2, max_len:  2, regex: ~r/(^01$)/},
-    %{atom: :point_of_initiation_method,             must: false, min_len: 2, max_len:  2, regex: ~r/(^11$)|(^12$)/},
-    %{atom: :merchant_account_information,           must:  true, min_len: 1, max_len: 99, regex: nil},
-    %{atom: :merchant_category_code,                 must:  true, min_len: 4, max_len:  4, regex: ~r/^\d+$/},
-    %{atom: :transaction_currency,                   must:  true, min_len: 3, max_len:  3, regex: ~r/^\d+$/},
-    %{atom: :transaction_amount,                     must: false, min_len: 1, max_len: 13, regex: ~r/(^\d+\.\d+$)|(^\d+$)/},
-    %{atom: :tip_or_convenience_indicator,           must: false, min_len: 2, max_len:  2, regex: ~r/^\d+$/},
-    %{atom: :value_of_convenience_fee_fixed,         must: false, min_len: 1, max_len: 13, regex: ~r/(^\d+\.\d+$)|(^\d+$)/},
-    %{atom: :value_of_convenience_fee_percentage,    must: false, min_len: 1, max_len:  5, regex: ~r/(^\d+\.\d+$)|(^\d+$)/},
-    %{atom: :country_code,                           must:  true, min_len: 2, max_len:  2, regex: ~r/^[a-zA-Z]{2}$/},
-    %{atom: :merchant_name,                          must:  true, min_len: 1, max_len: 25, regex: nil},
-    %{atom: :merchant_city,                          must:  true, min_len: 1, max_len: 15, regex: nil},
-    %{atom: :postal_code,                            must: false, min_len: 1, max_len: 10, regex: nil},
-    %{atom: :additional_data_field_template,         must: false, min_len: 1, max_len: 99, regex: nil},
-    %{atom: :crc,                                    must:  true, min_len: 1, max_len:  4, regex: nil},
-    %{atom: :merchant_information_language_template, must: false, min_len: 1, max_len: 99, regex: nil},
-    %{atom: :rfu_for_emvco,                          must: false, min_len: 1, max_len: 99, regex: nil},
-    %{atom: :unreserved_template,                    must: false, min_len: 1, max_len: 99, regex: nil}
+    %{atom: :payload_format_indicator,               must:  true, min_len: 2, max_len:  2, regex: ~r/(^01$)/,               parent: nil},
+    %{atom: :point_of_initiation_method,             must: false, min_len: 2, max_len:  2, regex: ~r/(^11$)|(^12$)/,        parent: nil},
+    %{atom: :merchant_account_information,           must:  true, min_len: 1, max_len: 99, regex: nil,                      parent: nil},
+    %{atom: :merchant_category_code,                 must:  true, min_len: 4, max_len:  4, regex: ~r/^\d+$/,                parent: nil},
+    %{atom: :transaction_currency,                   must:  true, min_len: 3, max_len:  3, regex: ~r/^\d+$/,                parent: nil},
+    %{atom: :transaction_amount,                     must: false, min_len: 1, max_len: 13, regex: ~r/(^\d+\.\d+$)|(^\d+$)/, parent: nil},
+    %{atom: :tip_or_convenience_indicator,           must: false, min_len: 2, max_len:  2, regex: ~r/^\d+$/,                parent: nil},
+    %{atom: :value_of_convenience_fee_fixed,         must: false, min_len: 1, max_len: 13, regex: ~r/(^\d+\.\d+$)|(^\d+$)/, parent: :tip_or_convenience_indicator},
+    %{atom: :value_of_convenience_fee_percentage,    must: false, min_len: 1, max_len:  5, regex: ~r/(^\d+\.\d+$)|(^\d+$)/, parent: :tip_or_convenience_indicator},
+    %{atom: :country_code,                           must:  true, min_len: 2, max_len:  2, regex: ~r/^[a-zA-Z]{2}$/,        parent: nil},
+    %{atom: :merchant_name,                          must:  true, min_len: 1, max_len: 25, regex: nil,                      parent: nil},
+    %{atom: :merchant_city,                          must:  true, min_len: 1, max_len: 15, regex: nil,                      parent: nil},
+    %{atom: :postal_code,                            must: false, min_len: 1, max_len: 10, regex: nil,                      parent: nil},
+    %{atom: :additional_data_field_template,         must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil},
+    %{atom: :crc,                                    must:  true, min_len: 1, max_len:  4, regex: nil,                      parent: nil},
+    %{atom: :merchant_information_language_template, must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil},
+    %{atom: :rfu_for_emvco,                          must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil},
+    %{atom: :unreserved_template,                    must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil}
   ]
 
   def code_atoms() do

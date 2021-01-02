@@ -36,8 +36,11 @@ defmodule Exemvi.MPM do
     {_, mandatory_reasons} = validate_tlvs(tlvs, :mandatory)
     reasons = reasons ++ (mandatory_reasons || [])
 
-    {_, spec_reasons} = validate_tlvs(tlvs, :data_value)
-    reasons = reasons ++ (spec_reasons || [])
+    {_, data_value_reasons} = validate_tlvs(tlvs, :data_value)
+    reasons = reasons ++ (data_value_reasons || [])
+
+    {_, orphaned_reasons} = validate_tlvs(tlvs, :orphaned)
+    reasons = reasons ++ (orphaned_reasons || [])
 
     if Enum.count(reasons) == 0 do
       {:ok, nil}
@@ -76,7 +79,7 @@ defmodule Exemvi.MPM do
     mandatories =
       Exemvi.MPM.DataObject.specifications()
       |> Enum.filter(fn x -> x[:must] end)
-      |> Enum.map(fn x -> Map.get(x, :atom) end)
+      |> Enum.map(fn x -> x[:atom] end)
 
     tlv_data_objects = Enum.map(tlvs, fn x -> Exemvi.MPM.DataObject.code_atoms()[x.data_object] end)
 
@@ -104,6 +107,33 @@ defmodule Exemvi.MPM do
     validate_tlvs_rest(tlvs, [])
   end
 
+  defp validate_tlvs(tlvs, :orphaned) do
+
+    tlv_atoms = Enum.map(
+      tlvs,
+      fn x -> Exemvi.MPM.DataObject.code_atoms[x.data_object] end)
+
+    specs_with_parent = Enum.filter(
+      Exemvi.MPM.DataObject.specifications(),
+      fn x -> x[:parent] != nil end)
+
+    specs_in_tlvs = Enum.filter(
+      specs_with_parent,
+      fn x -> Enum.member?(tlv_atoms, x[:atom]) end)
+
+    orphaned_atoms =
+      specs_in_tlvs
+      |> Enum.filter(fn x -> not Enum.member?(tlv_atoms, x[:parent]) end)
+      |> Enum.map(fn x -> x[:atom] end)
+
+    if Enum.count(orphaned_atoms) == 0 do
+      {:ok, nil}
+    else
+      reasons = Enum.map(orphaned_atoms, fn x -> Exemvi.Error.orphaned_data_object(x) end)
+      {:error, reasons}
+    end
+  end
+
   defp validate_tlvs_rest([], reasons) do
     if Enum.count(reasons) == 0 do
       {:ok, nil}
@@ -127,7 +157,7 @@ defmodule Exemvi.MPM do
     data_object_atom = Exemvi.MPM.DataObject.code_atoms()[tlv.data_object]
     spec = Enum.find(
       Exemvi.MPM.DataObject.specifications(),
-      fn x -> Map.get(x, :atom) == data_object_atom end)
+      fn x -> x[:atom] == data_object_atom end)
 
     actual_len = String.length(tlv.data_value)
     len_is_ok = actual_len >= spec[:min_len] and actual_len <= spec[:max_len]
