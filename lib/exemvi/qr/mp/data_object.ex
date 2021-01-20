@@ -1,6 +1,12 @@
-defmodule Exemvi.QR.M.DataObject do
+defmodule DO do
 
-  @code_atoms %{
+  defstruct [
+    :id,
+    :value,
+    :template
+  ]
+
+  @root_atoms %{
     "00" => :payload_format_indicator,
     "01" => :point_of_initiation_method,
     "02" => :merchant_account_information,
@@ -103,7 +109,109 @@ defmodule Exemvi.QR.M.DataObject do
     "99" => :unreserved_template
   }
 
-  @specifications [
+  @id_62_atoms %{
+    "01" => :bill_number,
+    "02" => :mobile_number,
+    "03" => :store_label,
+    "04" => :loyalty_number,
+    "05" => :reference_label,
+    "06" => :customer_label,
+    "07" => :terminal_label,
+    "08" => :purpose_of_transaction,
+    "09" => :additional_consumer_data_request,
+    "10" => :rfu_for_emvco,
+    "11" => :rfu_for_emvco,
+    "12" => :rfu_for_emvco,
+    "13" => :rfu_for_emvco,
+    "14" => :rfu_for_emvco,
+    "15" => :rfu_for_emvco,
+    "16" => :rfu_for_emvco,
+    "17" => :rfu_for_emvco,
+    "18" => :rfu_for_emvco,
+    "19" => :rfu_for_emvco,
+    "20" => :rfu_for_emvco,
+    "21" => :rfu_for_emvco,
+    "22" => :rfu_for_emvco,
+    "23" => :rfu_for_emvco,
+    "24" => :rfu_for_emvco,
+    "25" => :rfu_for_emvco,
+    "26" => :rfu_for_emvco,
+    "27" => :rfu_for_emvco,
+    "28" => :rfu_for_emvco,
+    "29" => :rfu_for_emvco,
+    "30" => :rfu_for_emvco,
+    "31" => :rfu_for_emvco,
+    "32" => :rfu_for_emvco,
+    "33" => :rfu_for_emvco,
+    "34" => :rfu_for_emvco,
+    "35" => :rfu_for_emvco,
+    "36" => :rfu_for_emvco,
+    "37" => :rfu_for_emvco,
+    "38" => :rfu_for_emvco,
+    "39" => :rfu_for_emvco,
+    "40" => :rfu_for_emvco,
+    "41" => :rfu_for_emvco,
+    "42" => :rfu_for_emvco,
+    "43" => :rfu_for_emvco,
+    "44" => :rfu_for_emvco,
+    "45" => :rfu_for_emvco,
+    "46" => :rfu_for_emvco,
+    "47" => :rfu_for_emvco,
+    "48" => :rfu_for_emvco,
+    "49" => :rfu_for_emvco,
+    "50" => :payment_system_specific_template,
+    "51" => :payment_system_specific_template,
+    "52" => :payment_system_specific_template,
+    "53" => :payment_system_specific_template,
+    "54" => :payment_system_specific_template,
+    "55" => :payment_system_specific_template,
+    "56" => :payment_system_specific_template,
+    "57" => :payment_system_specific_template,
+    "58" => :payment_system_specific_template,
+    "59" => :payment_system_specific_template,
+    "60" => :payment_system_specific_template,
+    "61" => :payment_system_specific_template,
+    "62" => :payment_system_specific_template,
+    "63" => :payment_system_specific_template,
+    "64" => :payment_system_specific_template,
+    "65" => :payment_system_specific_template,
+    "66" => :payment_system_specific_template,
+    "67" => :payment_system_specific_template,
+    "68" => :payment_system_specific_template,
+    "69" => :payment_system_specific_template,
+    "70" => :payment_system_specific_template,
+    "71" => :payment_system_specific_template,
+    "72" => :payment_system_specific_template,
+    "73" => :payment_system_specific_template,
+    "74" => :payment_system_specific_template,
+    "75" => :payment_system_specific_template,
+    "76" => :payment_system_specific_template,
+    "77" => :payment_system_specific_template,
+    "78" => :payment_system_specific_template,
+    "79" => :payment_system_specific_template,
+    "80" => :payment_system_specific_template,
+    "81" => :payment_system_specific_template,
+    "82" => :payment_system_specific_template,
+    "83" => :payment_system_specific_template,
+    "84" => :payment_system_specific_template,
+    "85" => :payment_system_specific_template,
+    "86" => :payment_system_specific_template,
+    "87" => :payment_system_specific_template,
+    "88" => :payment_system_specific_template,
+    "89" => :payment_system_specific_template,
+    "90" => :payment_system_specific_template,
+    "91" => :payment_system_specific_template,
+    "92" => :payment_system_specific_template,
+    "93" => :payment_system_specific_template,
+    "94" => :payment_system_specific_template,
+    "95" => :payment_system_specific_template,
+    "96" => :payment_system_specific_template,
+    "97" => :payment_system_specific_template,
+    "98" => :payment_system_specific_template,
+    "99" => :payment_system_specific_template
+  }
+
+  @root_specs [
     %{atom: :payload_format_indicator,               must:  true, min_len: 2, max_len:  2, regex: ~r/(^01$)/,               parent: nil},
     %{atom: :point_of_initiation_method,             must: false, min_len: 2, max_len:  2, regex: ~r/(^11$)|(^12$)/,        parent: nil},
     %{atom: :merchant_account_information,           must:  true, min_len: 1, max_len: 99, regex: nil,                      parent: nil},
@@ -124,17 +232,21 @@ defmodule Exemvi.QR.M.DataObject do
     %{atom: :unreserved_template,                    must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil}
   ]
 
-  def code_atoms() do
-    @code_atoms
+  @id_62_specs [
+
+  ]
+
+  def root_atoms() do
+    @root_atoms
   end
 
-  def code_by_atom(data_object_atom) do
-    code_atoms()
-    |> Enum.find(fn {_, v} -> v == data_object_atom end)
+  def root_code(id_atom) do
+    root_atoms()
+    |> Enum.find(fn {_, v} -> v == id_atom end)
     |> elem(0)
   end
 
-  def specifications() do
-    @specifications
+  def root_specs() do
+    @root_specs
   end
 end
