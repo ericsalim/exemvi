@@ -1,4 +1,4 @@
-defmodule DO do
+defmodule Exemvi.QR.MP.Object do
 
   defstruct [
     :id,
@@ -6,7 +6,7 @@ defmodule DO do
     :objects
   ]
 
-  @root_atoms %{
+  @root_id_atoms %{
     "00" => :payload_format_indicator,
     "01" => :point_of_initiation_method,
     "02" => :merchant_account_information,
@@ -236,12 +236,12 @@ defmodule DO do
 
   ]
 
-  def root_atoms() do
-    @root_atoms
+  def root_id_atoms() do
+    @root_id_atoms
   end
 
   def root_code(id_atom) do
-    root_atoms()
+    root_id_atoms()
     |> Enum.find(fn {_, v} -> v == id_atom end)
     |> elem(0)
   end

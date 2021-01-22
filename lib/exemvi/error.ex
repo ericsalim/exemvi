@@ -2,7 +2,7 @@ defmodule Exemvi.Error do
 
   # Must be ordered alphabetically
 
-  def invalid_data_length, do: :invalid_data_length
+  def invalid_value_length, do: :invalid_value_length
 
   def invalid_object_id, do: :invalid_object_id
 
@@ -30,7 +30,7 @@ defmodule Exemvi.Error do
   def missing_object_id(:merchant_city), do: :missing_merchant_city
   def missing_object_id(:crc), do: :missing_crc
 
-  def orphaned_data_object(:value_of_convenience_fee_fixed), do: :orphaned_value_of_convenience_fee_fixed
-  def orphaned_data_object(:value_of_convenience_fee_percentage), do: :orphaned_value_of_convenience_fee_percentage
+  def orphaned_object(:value_of_convenience_fee_fixed), do: :orphaned_value_of_convenience_fee_fixed
+  def orphaned_object(:value_of_convenience_fee_percentage), do: :orphaned_value_of_convenience_fee_percentage
 
 end

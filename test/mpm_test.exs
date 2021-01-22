@@ -1,29 +1,29 @@
 defmodule MPMTest do
   use ExUnit.Case
 
-  alias DO, as: DO
+  alias Exemvi.QR.MP.Object, as: MPO
 
   @official_sample "00020101021229300012D156000000000510A93FO3230Q31280012D15600000001030812345678520441115802CN5914BEST TRANSPORT6007BEIJING64200002ZH0104最佳运输0202北京540523.7253031565502016233030412340603***0708A60086670902ME91320016A0112233449988770708123456786304A13A"
   @official_data_objects [
-    %DO{id: "00", value: "01"},
-    %DO{id: "01", value: "12"},
-    %DO{id: "29", value: "0012D156000000000510A93FO3230Q"},
-    %DO{id: "31", value: "0012D15600000001030812345678"},
-    %DO{id: "52", value: "4111"},
-    %DO{id: "58", value: "CN"},
-    %DO{id: "59", value: "BEST TRANSPORT"},
-    %DO{id: "60", value: "BEIJING"},
-    %DO{id: "64", value: "0002ZH0104最佳运输0202北京"},
-    %DO{id: "54", value: "23.72"},
-    %DO{id: "53", value: "156"},
-    %DO{id: "55", value: "01"},
-    %DO{id: "62", value: "030412340603***0708A60086670902ME"},
-    %DO{id: "91", value: "0016A011223344998877070812345678"},
-    %DO{id: "63", value: "A13A"}
+    %MPO{id: "00", value: "01"},
+    %MPO{id: "01", value: "12"},
+    %MPO{id: "29", value: "0012D156000000000510A93FO3230Q"},
+    %MPO{id: "31", value: "0012D15600000001030812345678"},
+    %MPO{id: "52", value: "4111"},
+    %MPO{id: "58", value: "CN"},
+    %MPO{id: "59", value: "BEST TRANSPORT"},
+    %MPO{id: "60", value: "BEIJING"},
+    %MPO{id: "64", value: "0002ZH0104最佳运输0202北京"},
+    %MPO{id: "54", value: "23.72"},
+    %MPO{id: "53", value: "156"},
+    %MPO{id: "55", value: "01"},
+    %MPO{id: "62", value: "030412340603***0708A60086670902ME"},
+    %MPO{id: "91", value: "0016A011223344998877070812345678"},
+    %MPO{id: "63", value: "A13A"}
   ]
 
   test "qr parsing is successful" do
-    with {:ok, data_objects} <- Exemvi.QR.MP.parse_to_data_objects(@official_sample)
+    with {:ok, data_objects} <- Exemvi.QR.MP.parse_to_objects(@official_sample)
     do
       # Check only some fields
 
@@ -50,9 +50,9 @@ defmodule MPMTest do
 
   test "qr data length is not numeric" do
     payload = "00A201"
-    {result, reason} = Exemvi.QR.MP.parse_to_data_objects(payload)
+    {result, reason} = Exemvi.QR.MP.parse_to_objects(payload)
     assert result == :error
-    assert reason == :invalid_data_length
+    assert reason == :invalid_value_length
   end
 
   test "qr does not start with payload format indicator" do
@@ -75,7 +75,7 @@ defmodule MPMTest do
   test "official data object sample is valid" do
     test_data = @official_data_objects
 
-    {result, _} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {result, _} = Exemvi.QR.MP.validate_objects(test_data)
 
     assert result == :ok
   end
@@ -83,8 +83,8 @@ defmodule MPMTest do
   test "payload format indicator is missing" do
     test_data = Enum.filter(
       @official_data_objects,
-      fn x -> DO.root_atoms()[x.id] != :payload_format_indicator end)
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+      fn x -> MPO.root_id_atoms()[x.id] != :payload_format_indicator end)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_object_id(:payload_format_indicator))
@@ -93,14 +93,14 @@ defmodule MPMTest do
   test "payload format indicator is not 01" do
     test_data = @official_data_objects
 
-    code = DO.root_code(:payload_format_indicator)
+    code = MPO.root_code(:payload_format_indicator)
 
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "02"})
+      %MPO{id: code, value: "02"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:payload_format_indicator))
@@ -109,14 +109,14 @@ defmodule MPMTest do
   test "point of initiation value is not 11 or 12" do
     test_data = @official_data_objects
 
-    code = DO.root_code(:point_of_initiation_method)
+    code = MPO.root_code(:point_of_initiation_method)
 
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "10"})
+      %MPO{id: code, value: "10"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:point_of_initiation_method))
@@ -124,9 +124,9 @@ defmodule MPMTest do
       test_data = List.replace_at(
         test_data,
         Enum.find_index(test_data, fn x -> x.id == code end),
-        %DO{id: code, value: "13"})
+        %MPO{id: code, value: "13"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:point_of_initiation_method))
@@ -135,8 +135,8 @@ defmodule MPMTest do
   test "merchant account information is missing" do
     test_data = Enum.filter(
       @official_data_objects,
-      fn x -> DO.root_atoms()[x.id] != :merchant_account_information end)
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+      fn x -> MPO.root_id_atoms()[x.id] != :merchant_account_information end)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_object_id(:merchant_account_information))
@@ -145,8 +145,8 @@ defmodule MPMTest do
   test "merchant category code is missing" do
     test_data = Enum.filter(
       @official_data_objects,
-      fn x -> DO.root_atoms()[x.id] != :merchant_category_code end)
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+      fn x -> MPO.root_id_atoms()[x.id] != :merchant_category_code end)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_object_id(:merchant_category_code))
@@ -156,14 +156,14 @@ defmodule MPMTest do
 
     test_data = @official_data_objects
 
-    code = DO.root_code(:merchant_category_code)
+    code = MPO.root_code(:merchant_category_code)
 
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "12AB"})
+      %MPO{id: code, value: "12AB"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:merchant_category_code))
@@ -171,9 +171,9 @@ defmodule MPMTest do
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "123"})
+      %MPO{id: code, value: "123"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:merchant_category_code))
@@ -181,9 +181,9 @@ defmodule MPMTest do
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "12345"})
+      %MPO{id: code, value: "12345"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:merchant_category_code))
@@ -192,8 +192,8 @@ defmodule MPMTest do
   test "transaction currency is missing" do
     test_data = Enum.filter(
       @official_data_objects,
-      fn x -> DO.root_atoms()[x.id] != :transaction_currency end)
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+      fn x -> MPO.root_id_atoms()[x.id] != :transaction_currency end)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_object_id(:transaction_currency))
@@ -202,14 +202,14 @@ defmodule MPMTest do
   test "transaction currency value is not 3 integer digits" do
     test_data = @official_data_objects
 
-    code = DO.root_code(:transaction_currency)
+    code = MPO.root_code(:transaction_currency)
 
     test_data = List.insert_at(
       test_data,
       0,
-      %DO{id: code, value: "12AB"})
+      %MPO{id: code, value: "12AB"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:transaction_currency))
@@ -217,9 +217,9 @@ defmodule MPMTest do
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "12"})
+      %MPO{id: code, value: "12"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:transaction_currency))
@@ -227,9 +227,9 @@ defmodule MPMTest do
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "1234"})
+      %MPO{id: code, value: "1234"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:transaction_currency))
@@ -239,14 +239,14 @@ defmodule MPMTest do
 
     test_data = @official_data_objects
 
-    code = DO.root_code(:transaction_amount)
+    code = MPO.root_code(:transaction_amount)
 
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "12345678901234"})
+      %MPO{id: code, value: "12345678901234"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:transaction_amount))
@@ -254,9 +254,9 @@ defmodule MPMTest do
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "123456789012.4"})
+      %MPO{id: code, value: "123456789012.4"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:transaction_amount))
@@ -266,14 +266,14 @@ defmodule MPMTest do
 
     test_data = @official_data_objects
 
-    code = DO.root_code(:tip_or_convenience_indicator)
+    code = MPO.root_code(:tip_or_convenience_indicator)
 
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "1A"})
+      %MPO{id: code, value: "1A"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:tip_or_convenience_indicator))
@@ -281,9 +281,9 @@ defmodule MPMTest do
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "1"})
+      %MPO{id: code, value: "1"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:tip_or_convenience_indicator))
@@ -291,9 +291,9 @@ defmodule MPMTest do
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "123"})
+      %MPO{id: code, value: "123"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:tip_or_convenience_indicator))
@@ -302,7 +302,7 @@ defmodule MPMTest do
   test "convenience fee fixed is orphaned" do
     test_data = @official_data_objects
 
-    convenience_code = DO.root_code(:tip_or_convenience_indicator)
+    convenience_code = MPO.root_code(:tip_or_convenience_indicator)
 
     test_data = List.delete_at(
       test_data,
@@ -311,30 +311,30 @@ defmodule MPMTest do
     test_data = List.insert_at(
       test_data,
       0,
-      %DO
+      %MPO
       {
-        id: DO.root_code(:value_of_convenience_fee_fixed),
+        id: MPO.root_code(:value_of_convenience_fee_fixed),
         value: "1"
       })
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
-      Exemvi.Error.orphaned_data_object(:value_of_convenience_fee_fixed))
+      Exemvi.Error.orphaned_object(:value_of_convenience_fee_fixed))
   end
 
   test "convenience fee fixed is longer than 13 decimal digits" do
 
     test_data = @official_data_objects
 
-    code = DO.root_code(:value_of_convenience_fee_fixed)
+    code = MPO.root_code(:value_of_convenience_fee_fixed)
 
     test_data = List.insert_at(
       test_data,
       0,
-      %DO{id: code, value: "12345678901234"})
+      %MPO{id: code, value: "12345678901234"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:value_of_convenience_fee_fixed))
@@ -342,9 +342,9 @@ defmodule MPMTest do
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "123456789012.4"})
+      %MPO{id: code, value: "123456789012.4"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:value_of_convenience_fee_fixed))
@@ -353,7 +353,7 @@ defmodule MPMTest do
   test "convenience fee percentage is orphaned" do
     test_data = @official_data_objects
 
-    convenience_code = DO.root_code(:tip_or_convenience_indicator)
+    convenience_code = MPO.root_code(:tip_or_convenience_indicator)
 
     test_data = List.delete_at(
       test_data,
@@ -362,29 +362,29 @@ defmodule MPMTest do
     test_data = List.insert_at(
       test_data,
       0,
-      %DO
+      %MPO
       {
-        id: DO.root_code(:value_of_convenience_fee_percentage),
+        id: MPO.root_code(:value_of_convenience_fee_percentage),
         value: "1"
       })
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
-      Exemvi.Error.orphaned_data_object(:value_of_convenience_fee_percentage))
+      Exemvi.Error.orphaned_object(:value_of_convenience_fee_percentage))
   end
 
   test "convenience fee percentage is longer than 5 decimal digits" do
     test_data = @official_data_objects
 
-    code = DO.root_code(:value_of_convenience_fee_percentage)
+    code = MPO.root_code(:value_of_convenience_fee_percentage)
 
     test_data = List.insert_at(
       test_data,
       0,
-      %DO{id: code, value: "123456"})
+      %MPO{id: code, value: "123456"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:value_of_convenience_fee_percentage))
@@ -392,9 +392,9 @@ defmodule MPMTest do
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "1234.6"})
+      %MPO{id: code, value: "1234.6"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:value_of_convenience_fee_percentage))
@@ -403,8 +403,8 @@ defmodule MPMTest do
   test "country code is missing" do
     test_data = Enum.filter(
       @official_data_objects,
-      fn x -> DO.root_atoms()[x.id] != :country_code end)
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+      fn x -> MPO.root_id_atoms()[x.id] != :country_code end)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_object_id(:country_code))
@@ -414,14 +414,14 @@ defmodule MPMTest do
 
     test_data = @official_data_objects
 
-    code = DO.root_code(:country_code)
+    code = MPO.root_code(:country_code)
 
     test_data = List.insert_at(
       test_data,
       0,
-      %DO{id: code, value: "A"})
+      %MPO{id: code, value: "A"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:country_code))
@@ -429,9 +429,9 @@ defmodule MPMTest do
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "ABC"})
+      %MPO{id: code, value: "ABC"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:country_code))
@@ -440,8 +440,8 @@ defmodule MPMTest do
   test "merchant name is missing" do
     test_data = Enum.filter(
       @official_data_objects,
-      fn x -> DO.root_atoms()[x.id] != :merchant_name end)
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+      fn x -> MPO.root_id_atoms()[x.id] != :merchant_name end)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_object_id(:merchant_name))
@@ -450,14 +450,14 @@ defmodule MPMTest do
   test "merchant name is longer than 25 chars" do
     test_data = @official_data_objects
 
-    code = DO.root_code(:country_code)
+    code = MPO.root_code(:country_code)
 
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"})
+      %MPO{id: code, value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:country_code))
@@ -466,8 +466,8 @@ defmodule MPMTest do
   test "merchant city is missing" do
     test_data = Enum.filter(
       @official_data_objects,
-      fn x -> DO.root_atoms()[x.id] != :merchant_city end)
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+      fn x -> MPO.root_id_atoms()[x.id] != :merchant_city end)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_object_id(:merchant_city))
@@ -476,14 +476,14 @@ defmodule MPMTest do
   test "merchant city is longer than 15 chars" do
     test_data = @official_data_objects
 
-    code = DO.root_code(:merchant_city)
+    code = MPO.root_code(:merchant_city)
 
     test_data = List.replace_at(
       test_data,
       Enum.find_index(test_data, fn x -> x.id == code end),
-      %DO{id: code, value: "ABCDEFGHIJKLMNOP"})
+      %MPO{id: code, value: "ABCDEFGHIJKLMNOP"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:merchant_city))
@@ -492,14 +492,14 @@ defmodule MPMTest do
   test "postal code is longer than 10 chars" do
     test_data = @official_data_objects
 
-    code = DO.root_code(:postal_code)
+    code = MPO.root_code(:postal_code)
 
     test_data = List.insert_at(
       test_data,
       0,
-      %DO{id: code, value: "ABCDEFGHIJK"})
+      %MPO{id: code, value: "ABCDEFGHIJK"})
 
-    {:error, reasons} = Exemvi.QR.MP.validate_data_objects(test_data)
+    {:error, reasons} = Exemvi.QR.MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:postal_code))
