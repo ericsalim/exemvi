@@ -3,7 +3,7 @@ defmodule DO do
   defstruct [
     :id,
     :value,
-    :template
+    :objects
   ]
 
   @root_atoms %{
@@ -109,6 +109,27 @@ defmodule DO do
     "99" => :unreserved_template
   }
 
+  @root_specs %{
+    payload_format_indicator:               %{must: true,  min_len: 2, max_len:  2, regex: ~r/(^01$)/,               parent: nil,                           is_template: false},
+    point_of_initiation_method:             %{must: false, min_len: 2, max_len:  2, regex: ~r/(^11$)|(^12$)/,        parent: nil,                           is_template: false},
+    merchant_account_information:           %{must: true,  min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false},
+    merchant_category_code:                 %{must: true,  min_len: 4, max_len:  4, regex: ~r/^\d+$/,                parent: nil,                           is_template: false},
+    transaction_currency:                   %{must: true,  min_len: 3, max_len:  3, regex: ~r/^\d+$/,                parent: nil,                           is_template: false},
+    transaction_amount:                     %{must: false, min_len: 1, max_len: 13, regex: ~r/(^\d+\.\d+$)|(^\d+$)/, parent: nil,                           is_template: false},
+    tip_or_convenience_indicator:           %{must: false, min_len: 2, max_len:  2, regex: ~r/^\d+$/,                parent: nil,                           is_template: false},
+    value_of_convenience_fee_fixed:         %{must: false, min_len: 1, max_len: 13, regex: ~r/(^\d+\.\d+$)|(^\d+$)/, parent: :tip_or_convenience_indicator, is_template: false},
+    value_of_convenience_fee_percentage:    %{must: false, min_len: 1, max_len:  5, regex: ~r/(^\d+\.\d+$)|(^\d+$)/, parent: :tip_or_convenience_indicator, is_template: false},
+    country_code:                           %{must: true,  min_len: 2, max_len:  2, regex: ~r/^[a-zA-Z]{2}$/,        parent: nil,                           is_template: false},
+    merchant_name:                          %{must: true,  min_len: 1, max_len: 25, regex: nil,                      parent: nil,                           is_template: false},
+    merchant_city:                          %{must: true,  min_len: 1, max_len: 15, regex: nil,                      parent: nil,                           is_template: false},
+    postal_code:                            %{must: false, min_len: 1, max_len: 10, regex: nil,                      parent: nil,                           is_template: false},
+    additional_data_field_template:         %{must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: true },
+    crc:                                    %{must: true , min_len: 1, max_len:  4, regex: nil,                      parent: nil,                           is_template: false},
+    merchant_information_language_template: %{must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false},
+    rfu_for_emvco:                          %{must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false},
+    unreserved_template:                    %{must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false}
+  }
+
   @id_62_atoms %{
     "01" => :bill_number,
     "02" => :mobile_number,
@@ -210,27 +231,6 @@ defmodule DO do
     "98" => :payment_system_specific_template,
     "99" => :payment_system_specific_template
   }
-
-  @root_specs [
-    %{atom: :payload_format_indicator,               must:  true, min_len: 2, max_len:  2, regex: ~r/(^01$)/,               parent: nil},
-    %{atom: :point_of_initiation_method,             must: false, min_len: 2, max_len:  2, regex: ~r/(^11$)|(^12$)/,        parent: nil},
-    %{atom: :merchant_account_information,           must:  true, min_len: 1, max_len: 99, regex: nil,                      parent: nil},
-    %{atom: :merchant_category_code,                 must:  true, min_len: 4, max_len:  4, regex: ~r/^\d+$/,                parent: nil},
-    %{atom: :transaction_currency,                   must:  true, min_len: 3, max_len:  3, regex: ~r/^\d+$/,                parent: nil},
-    %{atom: :transaction_amount,                     must: false, min_len: 1, max_len: 13, regex: ~r/(^\d+\.\d+$)|(^\d+$)/, parent: nil},
-    %{atom: :tip_or_convenience_indicator,           must: false, min_len: 2, max_len:  2, regex: ~r/^\d+$/,                parent: nil},
-    %{atom: :value_of_convenience_fee_fixed,         must: false, min_len: 1, max_len: 13, regex: ~r/(^\d+\.\d+$)|(^\d+$)/, parent: :tip_or_convenience_indicator},
-    %{atom: :value_of_convenience_fee_percentage,    must: false, min_len: 1, max_len:  5, regex: ~r/(^\d+\.\d+$)|(^\d+$)/, parent: :tip_or_convenience_indicator},
-    %{atom: :country_code,                           must:  true, min_len: 2, max_len:  2, regex: ~r/^[a-zA-Z]{2}$/,        parent: nil},
-    %{atom: :merchant_name,                          must:  true, min_len: 1, max_len: 25, regex: nil,                      parent: nil},
-    %{atom: :merchant_city,                          must:  true, min_len: 1, max_len: 15, regex: nil,                      parent: nil},
-    %{atom: :postal_code,                            must: false, min_len: 1, max_len: 10, regex: nil,                      parent: nil},
-    %{atom: :additional_data_field_template,         must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil},
-    %{atom: :crc,                                    must:  true, min_len: 1, max_len:  4, regex: nil,                      parent: nil},
-    %{atom: :merchant_information_language_template, must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil},
-    %{atom: :rfu_for_emvco,                          must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil},
-    %{atom: :unreserved_template,                    must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil}
-  ]
 
   @id_62_specs [
 

@@ -80,8 +80,8 @@ defmodule Exemvi.QR.MP do
   defp validate_data_objects(data_objects, :mandatory) do
     mandatory_ids =
       DO.root_specs()
-      |> Enum.filter(fn x -> x[:must] end)
-      |> Enum.map(fn x -> x[:atom] end)
+      |> Enum.filter(fn {_, v} -> v[:must] end)
+      |> Enum.map(fn {k, _} -> k end)
 
     data_object_ids = Enum.map(data_objects, fn x -> DO.root_atoms()[x.id] end)
 
@@ -111,27 +111,27 @@ defmodule Exemvi.QR.MP do
 
   defp validate_data_objects(data_objects, :orphaned) do
 
-    data_object_ids = Enum.map(
+    supplied_ids = Enum.map(
       data_objects,
       fn x -> DO.root_atoms[x.id] end)
 
-    specs_with_parent = Enum.filter(
-      DO.root_specs(),
-      fn x -> x[:parent] != nil end)
+    spec_child_ids =
+      DO.root_specs()
+      |> Enum.filter(fn {_, v} -> v[:parent] != nil end)
+      |> Enum.map(fn {k, _} -> k end)
 
-    ids_with_parents = Enum.filter(
-      specs_with_parent,
-      fn x -> Enum.member?(data_object_ids, x[:atom]) end)
+    supplied_child_ids =
+      spec_child_ids
+      |> Enum.filter(fn x -> Enum.member?(supplied_ids, x) end)
 
-    orphaned_atoms =
-      ids_with_parents
-      |> Enum.filter(fn x -> not Enum.member?(data_object_ids, x[:parent]) end)
-      |> Enum.map(fn x -> x[:atom] end)
+    orphaned_ids =
+      supplied_child_ids
+      |> Enum.filter(fn x -> not Enum.member?(supplied_ids, DO.root_specs[x][:parent]) end)
 
-    if Enum.count(orphaned_atoms) == 0 do
+    if Enum.count(orphaned_ids) == 0 do
       {:ok, nil}
     else
-      reasons = Enum.map(orphaned_atoms, fn x -> Exemvi.Error.orphaned_data_object(x) end)
+      reasons = Enum.map(orphaned_ids, fn x -> Exemvi.Error.orphaned_data_object(x) end)
       {:error, reasons}
     end
   end
@@ -157,9 +157,7 @@ defmodule Exemvi.QR.MP do
 
   defp validate_object_value(data_object) do
     data_object_atom = DO.root_atoms()[data_object.id]
-    spec = Enum.find(
-      DO.root_specs(),
-      fn x -> x[:atom] == data_object_atom end)
+    spec = DO.root_specs()[data_object_atom]
 
     actual_len = String.length(data_object.value)
     len_is_ok = actual_len >= spec[:min_len] and actual_len <= spec[:max_len]
