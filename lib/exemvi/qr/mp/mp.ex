@@ -26,7 +26,7 @@ defmodule Exemvi.QR.MP do
   end
 
   def parse_to_objects(qr) do
-    case parse_to_objects_rest(qr, []) do
+    case parse_to_objects_rest(:root, qr, []) do
       {:error, reason} -> {:error, reason}
       {:ok, objects} -> {:ok, objects}
     end
@@ -51,11 +51,14 @@ defmodule Exemvi.QR.MP do
     end
   end
 
-  defp parse_to_objects_rest("", objects) do
+  defp parse_to_objects_rest(_, "", objects) do
     {:ok, objects}
   end
 
-  defp parse_to_objects_rest(qr, objects) do
+  defp parse_to_objects_rest(template, qr, objects) do
+
+    id_raw = qr |> String.slice(0, 2)
+    id_atom = MPO.id_atoms(template)[id_raw]
 
     value_length_raw = qr |> String.slice(2, 2)
     value_length = case Integer.parse(value_length_raw) do
@@ -63,27 +66,37 @@ defmodule Exemvi.QR.MP do
       _ -> 0
     end
 
-    id_raw = qr |> String.slice(0, 2)
-    id_atom = MPO.root_id_atoms()[id_raw]
-
     cond do
       id_atom == nil -> {:error, Exemvi.Error.invalid_object_id}
       value_length == 0 -> {:error, Exemvi.Error.invalid_value_length}
       true ->
         value = String.slice(qr, 4, value_length)
-        objects = objects ++ [%MPO{id: id_raw, value: value}]
-        rest = String.slice(qr, (4 + value_length)..-1)
-        parse_to_objects_rest(rest, objects)
+        qr_rest = String.slice(qr, (4 + value_length)..-1)
+        object = %MPO{id: id_raw, value: value}
+
+        is_template = MPO.specs(template)[id_atom][:is_template]
+        if is_template do
+            case parse_to_objects_rest(id_atom, value, []) do
+              {:ok, inner_objects} ->
+                object = %{object | objects: inner_objects}
+                objects = objects ++ [object]
+                parse_to_objects_rest(template, qr_rest, objects)
+              {:error, reasons} -> {:error, reasons}
+            end
+        else
+          objects = objects ++ [object]
+          parse_to_objects_rest(template, qr_rest, objects)
+        end
     end
   end
 
   defp validate_objects(objects, :mandatory) do
     mandatory_ids =
-      MPO.root_specs()
+      MPO.specs(:root)
       |> Enum.filter(fn {_, v} -> v[:must] end)
       |> Enum.map(fn {k, _} -> k end)
 
-    supplied_ids = Enum.map(objects, fn x -> MPO.root_id_atoms()[x.id] end)
+    supplied_ids = Enum.map(objects, fn x -> MPO.id_atoms(:root)[x.id] end)
 
     id_exists = fn all_ids, id_to_check, reasons ->
       if Enum.member?(all_ids, id_to_check) do
@@ -113,10 +126,10 @@ defmodule Exemvi.QR.MP do
 
     supplied_ids = Enum.map(
       objects,
-      fn x -> MPO.root_id_atoms[x.id] end)
+      fn x -> MPO.id_atoms(:root)[x.id] end)
 
     spec_child_ids =
-      MPO.root_specs()
+      MPO.specs(:root)
       |> Enum.filter(fn {_, v} -> v[:parent] != nil end)
       |> Enum.map(fn {k, _} -> k end)
 
@@ -126,7 +139,7 @@ defmodule Exemvi.QR.MP do
 
     orphaned_ids =
       supplied_child_ids
-      |> Enum.filter(fn x -> not Enum.member?(supplied_ids, MPO.root_specs[x][:parent]) end)
+      |> Enum.filter(fn x -> not Enum.member?(supplied_ids, MPO.specs(:root)[x][:parent]) end)
 
     if Enum.count(orphaned_ids) == 0 do
       {:ok, nil}
@@ -156,8 +169,8 @@ defmodule Exemvi.QR.MP do
   end
 
   defp validate_object_value(object) do
-    id_atom = MPO.root_id_atoms()[object.id]
-    spec = MPO.root_specs()[id_atom]
+    id_atom = MPO.id_atoms(:root)[object.id]
+    spec = MPO.specs(:root)[id_atom]
 
     actual_len = String.length(object.value)
     len_is_ok = actual_len >= spec[:min_len] and actual_len <= spec[:max_len]

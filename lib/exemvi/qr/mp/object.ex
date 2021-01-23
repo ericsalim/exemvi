@@ -130,7 +130,7 @@ defmodule Exemvi.QR.MP.Object do
     unreserved_template:                    %{must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false}
   }
 
-  @id_62_atoms %{
+  @id_62_id_atoms %{
     "01" => :bill_number,
     "02" => :mobile_number,
     "03" => :store_label,
@@ -232,21 +232,46 @@ defmodule Exemvi.QR.MP.Object do
     "99" => :payment_system_specific_template
   }
 
-  @id_62_specs [
+  @id_64_id_atoms %{
+    #TODO
+  }
 
-  ]
+  @id_62_specs %{
+    bill_number:                      %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
+    mobile_number:                    %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
+    store_label:                      %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
+    loyalty_number:                   %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
+    reference_label:                  %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
+    customer_label:                   %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
+    terminal_label:                   %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
+    purpose_of_transaction:           %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
+    additional_consumer_data_request: %{must: false, min_len: 1, max_len:  3, regex: ~r/(^A$)|(^M$)|(^E$)|(^AM$)|(^AE$)|(^MA$)|(^ME$)|(^EA$)|(EM$)|(^AME$)|(^AEM$)|(^MAE$)|(^MEA$)|(^EAM$)|(^EMA$)/, parent: nil, is_template: false},
+    rfu_for_emvco:                    %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false}
+  }
 
-  def root_id_atoms() do
+  @id_64_specs {
+    #TODO
+  }
+
+  def id_atoms(:root) do
     @root_id_atoms
   end
 
-  def root_code(id_atom) do
-    root_id_atoms()
+  def id_atoms(:additional_data_field_template) do
+    @id_62_id_atoms
+  end
+
+  def id_raw(template, id_atom) do
+    id_atoms(template)
     |> Enum.find(fn {_, v} -> v == id_atom end)
     |> elem(0)
   end
 
-  def root_specs() do
+  def specs(:root) do
     @root_specs
+  end
+
+  def specs(:additional_data_field_template) do
+    @id_62_specs
   end
 end
