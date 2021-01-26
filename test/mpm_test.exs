@@ -27,7 +27,7 @@ defmodule MPMTest do
     with {:ok, objects} <- MP.parse_to_objects(@official_sample)
     do
       # Check only some fields
-      IO.inspect(objects)
+
       # Check payload format indicator
       pfi = Enum.at(objects, 0)
       assert pfi.id == "00"
@@ -522,11 +522,11 @@ defmodule MPMTest do
       assert customer_label.id == "06"
       assert customer_label.value == "***"
 
-      terminal_label = object_62.objects |> Enum.at(3)
+      terminal_label = object_62.objects |> Enum.at(2)
       assert terminal_label.id == "07"
       assert terminal_label.value == "A6008667"
 
-      additional_consumer_data_request = object_62.objects |> Enum.at(4)
+      additional_consumer_data_request = object_62.objects |> Enum.at(3)
       assert additional_consumer_data_request.id == "09"
       assert additional_consumer_data_request.value == "ME"
     else
