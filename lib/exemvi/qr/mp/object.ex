@@ -246,7 +246,8 @@ defmodule Exemvi.QR.MP.Object do
     terminal_label:                   %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
     purpose_of_transaction:           %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
     additional_consumer_data_request: %{must: false, min_len: 1, max_len:  3, regex: ~r/(^A$)|(^M$)|(^E$)|(^AM$)|(^AE$)|(^MA$)|(^ME$)|(^EA$)|(EM$)|(^AME$)|(^AEM$)|(^MAE$)|(^MEA$)|(^EAM$)|(^EMA$)/, parent: nil, is_template: false},
-    rfu_for_emvco:                    %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false}
+    rfu_for_emvco:                    %{must: false, min_len: 1, max_len: 99, regex: nil,                                                                                                            parent: nil, is_template: false},
+    payment_system_specific_template: %{must: false, min_len: 1, max_len: 99, regex: nil,                                                                                                            parent: nil, is_template: false}
   }
 
   @id_64_specs {

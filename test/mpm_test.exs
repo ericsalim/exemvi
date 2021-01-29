@@ -18,7 +18,15 @@ defmodule MPMTest do
     %MPO{id: "54", value: "23.72"},
     %MPO{id: "53", value: "156"},
     %MPO{id: "55", value: "01"},
-    %MPO{id: "62", value: "030412340603***0708A60086670902ME"},
+    %MPO{
+      id: "62",
+      value: nil,
+      objects: [
+        %MPO{id: "03", objects: nil, value: "1234"},
+        %MPO{id: "06", objects: nil, value: "***"},
+        %MPO{id: "07", objects: nil, value: "A6008667"},
+        %MPO{id: "09", objects: nil, value: "ME"}
+      ]},
     %MPO{id: "91", value: "0016A011223344998877070812345678"},
     %MPO{id: "63", value: "A13A"}
   ]
@@ -534,45 +542,119 @@ defmodule MPMTest do
     end
   end
 
-  #test "additional data bill number is longer than 25 chars" do
-  #  assert false, "TODO"
-  #end
-  #
-  #test "additional data mobile number is longer than 25 chars" do
-  #  assert false, "TODO"
-  #end
-  #
-  #test "additional data store label is longer than 25 chars" do
-  #  assert false, "TODO"
-  #end
-  #
-  #test "additional data loyalty number is longer than 25 chars" do
-  #  assert false, "TODO"
-  #end
-  #
-  #test "additional data reference label is longer than 25 chars" do
-  #  assert false, "TODO"
-  #end
-  #
-  #test "additional data customer label is longer than 25 chars" do
-  #  assert false, "TODO"
-  #end
-  #
-  #test "additional data terminal label is longer than 25 chars" do
-  #  assert false, "TODO"
-  #end
-  #
-  #test "additional data purpose of transaction is longer than 25 chars" do
-  #  assert false, "TODO"
-  #end
-  #
-  #test "additional data consumer data request is invalid" do
-  #  assert false, "TODO"
-  #end
-  #
-  #test "additional data rfu is longer than 25 chars" do
-  #  assert false, "TODO"
-  #end
+  test "additional data bill number is longer than 25 chars" do
+    code_62 = MPO.id_raw(:root, :additional_data_field_template)
+    code_01 = MPO.id_raw(:additional_data_field_template, :bill_number)
+
+    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_01, value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }] }]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.invalid_object_value(:bill_number))
+  end
+
+  test "additional data mobile number is longer than 25 chars" do
+    code_62 = MPO.id_raw(:root, :additional_data_field_template)
+    code_02 = MPO.id_raw(:additional_data_field_template, :mobile_number)
+
+    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_02, value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }] }]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.invalid_object_value(:mobile_number))
+  end
+
+  test "additional data store label is longer than 25 chars" do
+    code_62 = MPO.id_raw(:root, :additional_data_field_template)
+    code_03 = MPO.id_raw(:additional_data_field_template, :store_label)
+
+    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_03, value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }] }]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.invalid_object_value(:store_label))
+  end
+
+  test "additional data loyalty number is longer than 25 chars" do
+    code_62 = MPO.id_raw(:root, :additional_data_field_template)
+    code_04 = MPO.id_raw(:additional_data_field_template, :loyalty_number)
+
+    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_04, value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }] }]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.invalid_object_value(:loyalty_number))
+  end
+
+  test "additional data reference label is longer than 25 chars" do
+    code_62 = MPO.id_raw(:root, :additional_data_field_template)
+    code_05 = MPO.id_raw(:additional_data_field_template, :reference_label)
+
+    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_05, value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }] }]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.invalid_object_value(:reference_label))
+  end
+
+  test "additional data customer label is longer than 25 chars" do
+    code_62 = MPO.id_raw(:root, :additional_data_field_template)
+    code_06 = MPO.id_raw(:additional_data_field_template, :customer_label)
+
+    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_06, value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }] }]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.invalid_object_value(:customer_label))
+  end
+
+  test "additional data terminal label is longer than 25 chars" do
+    code_62 = MPO.id_raw(:root, :additional_data_field_template)
+    code_07 = MPO.id_raw(:additional_data_field_template, :terminal_label)
+
+    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_07, value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }] }]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.invalid_object_value(:terminal_label))
+  end
+
+  test "additional data purpose of transaction is longer than 25 chars" do
+    code_62 = MPO.id_raw(:root, :additional_data_field_template)
+    code_08 = MPO.id_raw(:additional_data_field_template, :purpose_of_transaction)
+
+    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_08, value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }] }]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.invalid_object_value(:purpose_of_transaction))
+  end
+
+  test "additional data consumer data request is invalid" do
+    code_62 = MPO.id_raw(:root, :additional_data_field_template)
+    code_09 = MPO.id_raw(:additional_data_field_template, :additional_consumer_data_request)
+
+    test_data = [
+      [%MPO{id: code_62, objects: [%MPO{id: code_09, value: "AAA" }] }],
+      [%MPO{id: code_62, objects: [%MPO{id: code_09, value: "XYZ" }] }],
+      [%MPO{id: code_62, objects: [%MPO{id: code_09, value: "AMEA"}] }]
+    ]
+
+    expected_error = Exemvi.Error.invalid_object_value(:additional_consumer_data_request)
+
+    test_data
+    |> Enum.map(fn x -> MP.validate_objects(x) end)
+    |> Enum.map(fn {:error, reasons} -> Enum.member?(reasons, expected_error) end)
+    |> Enum.each(fn x -> assert x end)
+  end
 
   test "merchant information language template is parsed into data objects" do
     assert false, "TODO"
