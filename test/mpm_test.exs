@@ -14,18 +14,23 @@ defmodule MPMTest do
     %MPO{id: "58", value: "CN"},
     %MPO{id: "59", value: "BEST TRANSPORT"},
     %MPO{id: "60", value: "BEIJING"},
-    %MPO{id: "64", value: "0002ZH0104最佳运输0202北京"},
+    %MPO{
+      id: "64",
+      objects: [
+        %Exemvi.QR.MP.Object{id: "00", value: "ZH"},
+        %Exemvi.QR.MP.Object{id: "01", value: "最佳运输"},
+        %Exemvi.QR.MP.Object{id: "02", value: "北京"}
+      ]},
     %MPO{id: "54", value: "23.72"},
     %MPO{id: "53", value: "156"},
     %MPO{id: "55", value: "01"},
     %MPO{
       id: "62",
-      value: nil,
       objects: [
-        %MPO{id: "03", objects: nil, value: "1234"},
-        %MPO{id: "06", objects: nil, value: "***"},
-        %MPO{id: "07", objects: nil, value: "A6008667"},
-        %MPO{id: "09", objects: nil, value: "ME"}
+        %MPO{id: "03", value: "1234"},
+        %MPO{id: "06", value: "***"},
+        %MPO{id: "07", value: "A6008667"},
+        %MPO{id: "09", value: "ME"}
       ]},
     %MPO{id: "91", value: "0016A011223344998877070812345678"},
     %MPO{id: "63", value: "A13A"}
@@ -36,17 +41,18 @@ defmodule MPMTest do
     do
       # Check only some fields
 
-      # Check payload format indicator
       pfi = Enum.at(objects, 0)
       assert pfi.id == "00"
       assert pfi.value == "01"
 
-      # Check merchant information
-      merchant_info = Enum.at(objects, 8)
-      assert merchant_info.id == "64"
-      assert merchant_info.value == "0002ZH0104最佳运输0202北京"
+      merchant_info = Enum.at(objects, 6)
+      assert merchant_info.id == "59"
+      assert merchant_info.value == "BEST TRANSPORT"
 
-      # Check checksum
+      merchant_info = Enum.at(objects, 9)
+      assert merchant_info.id == "54"
+      assert merchant_info.value == "23.72"
+
       checksum = Enum.at(objects, 14)
       assert checksum.id == "63"
       assert checksum.value == "A13A"
@@ -657,6 +663,91 @@ defmodule MPMTest do
   end
 
   test "merchant information language template is parsed into data objects" do
-    assert false, "TODO"
+    with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
+
+      id_64_raw = MPO.id_raw(:root, :merchant_information_language_template)
+      object_64 = Enum.find(objects, fn x -> x.id == id_64_raw end)
+
+      assert object_64 != nil
+      assert object_64.objects != nil
+      assert Enum.count(object_64.objects) == 3
+
+      language_preference = object_64.objects |> Enum.at(0)
+      assert language_preference.id == "00"
+      assert language_preference.value == "ZH"
+
+      merchant_name = object_64.objects |> Enum.at(1)
+      assert merchant_name.id == "01"
+      assert merchant_name.value == "最佳运输"
+
+      merchant_city = object_64.objects |> Enum.at(2)
+      assert merchant_city.id == "02"
+      assert merchant_city.value == "北京"
+    else
+      _ -> assert false, "Failed parsing merchant information language template"
+    end
+  end
+
+  test "merchant information language template language preference is missing" do
+    code_64 = MPO.id_raw(:root, :merchant_information_language_template)
+
+    test_data = [%MPO{id: code_64, objects: [%MPO{id: "01", value: "ABC" }]}]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.missing_object_id(:language_preference))
+  end
+
+  test "merchant information language template language preference is invalid" do
+    code_64 = MPO.id_raw(:root, :merchant_information_language_template)
+    code_00 = MPO.id_raw(:merchant_information_language_template, :language_preference)
+
+    test_data = [
+      [%MPO{id: code_64, objects: [%MPO{id: code_00, value: "A"   }] }],
+      [%MPO{id: code_64, objects: [%MPO{id: code_00, value: "ABC" }] }]
+    ]
+
+    expected_error = Exemvi.Error.invalid_object_value(:language_preference)
+
+    test_data
+    |> Enum.map(fn x -> MP.validate_objects(x) end)
+    |> Enum.map(fn {:error, reasons} -> Enum.member?(reasons, expected_error) end)
+    |> Enum.each(fn x -> assert x end)
+  end
+
+  test "merchant information language template merchant name alternate language is missing" do
+    code_64 = MPO.id_raw(:root, :merchant_information_language_template)
+
+    test_data = [%MPO{id: code_64, objects: [%MPO{id: "00", value: "EN" }]}]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.missing_object_id(:merchant_name_alternate_language))
+  end
+
+  test "merchant information language template merchant name alternate language is longer than 25 chars" do
+    code_64 = MPO.id_raw(:root, :merchant_information_language_template)
+    code_01 = MPO.id_raw(:merchant_information_language_template, :merchant_name_alternate_language)
+
+    test_data = [%MPO{id: code_64, objects: [%MPO{id: code_01, value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }]}]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.invalid_object_value(:merchant_name_alternate_language))
+  end
+
+  test "merchant information language template merchant city alternate language is longer than 15 chars" do
+    code_64 = MPO.id_raw(:root, :merchant_information_language_template)
+    code_02 = MPO.id_raw(:merchant_information_language_template, :merchant_city_alternate_language)
+
+    test_data = [%MPO{id: code_64, objects: [%MPO{id: code_02, value: "ABCDEFGHIJKLMNOP" }]}]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.invalid_object_value(:merchant_city_alternate_language))
   end
 end

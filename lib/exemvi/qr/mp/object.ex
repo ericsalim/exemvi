@@ -125,7 +125,7 @@ defmodule Exemvi.QR.MP.Object do
     postal_code:                            %{must: false, min_len: 1, max_len: 10, regex: nil,                      parent: nil,                           is_template: false},
     additional_data_field_template:         %{must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: true },
     crc:                                    %{must: true , min_len: 1, max_len:  4, regex: nil,                      parent: nil,                           is_template: false},
-    merchant_information_language_template: %{must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false},
+    merchant_information_language_template: %{must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: true},
     rfu_for_emvco:                          %{must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false},
     unreserved_template:                    %{must: false, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false}
   }
@@ -232,10 +232,6 @@ defmodule Exemvi.QR.MP.Object do
     "99" => :payment_system_specific_template
   }
 
-  @id_64_id_atoms %{
-    #TODO
-  }
-
   @id_62_specs %{
     bill_number:                      %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
     mobile_number:                    %{must: false, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
@@ -250,8 +246,114 @@ defmodule Exemvi.QR.MP.Object do
     payment_system_specific_template: %{must: false, min_len: 1, max_len: 99, regex: nil,                                                                                                            parent: nil, is_template: false}
   }
 
-  @id_64_specs {
-    #TODO
+  @id_64_id_atoms %{
+    "00" => :language_preference,
+    "01" => :merchant_name_alternate_language,
+    "02" => :merchant_city_alternate_language,
+    "03" => :rfu_for_emvco,
+    "04" => :rfu_for_emvco,
+    "05" => :rfu_for_emvco,
+    "06" => :rfu_for_emvco,
+    "07" => :rfu_for_emvco,
+    "08" => :rfu_for_emvco,
+    "09" => :rfu_for_emvco,
+    "10" => :rfu_for_emvco,
+    "11" => :rfu_for_emvco,
+    "12" => :rfu_for_emvco,
+    "13" => :rfu_for_emvco,
+    "14" => :rfu_for_emvco,
+    "15" => :rfu_for_emvco,
+    "16" => :rfu_for_emvco,
+    "17" => :rfu_for_emvco,
+    "18" => :rfu_for_emvco,
+    "19" => :rfu_for_emvco,
+    "20" => :rfu_for_emvco,
+    "21" => :rfu_for_emvco,
+    "22" => :rfu_for_emvco,
+    "23" => :rfu_for_emvco,
+    "24" => :rfu_for_emvco,
+    "25" => :rfu_for_emvco,
+    "26" => :rfu_for_emvco,
+    "27" => :rfu_for_emvco,
+    "28" => :rfu_for_emvco,
+    "29" => :rfu_for_emvco,
+    "30" => :rfu_for_emvco,
+    "31" => :rfu_for_emvco,
+    "32" => :rfu_for_emvco,
+    "33" => :rfu_for_emvco,
+    "34" => :rfu_for_emvco,
+    "35" => :rfu_for_emvco,
+    "36" => :rfu_for_emvco,
+    "37" => :rfu_for_emvco,
+    "38" => :rfu_for_emvco,
+    "39" => :rfu_for_emvco,
+    "40" => :rfu_for_emvco,
+    "41" => :rfu_for_emvco,
+    "42" => :rfu_for_emvco,
+    "43" => :rfu_for_emvco,
+    "44" => :rfu_for_emvco,
+    "45" => :rfu_for_emvco,
+    "46" => :rfu_for_emvco,
+    "47" => :rfu_for_emvco,
+    "48" => :rfu_for_emvco,
+    "49" => :rfu_for_emvco,
+    "50" => :rfu_for_emvco,
+    "51" => :rfu_for_emvco,
+    "52" => :rfu_for_emvco,
+    "53" => :rfu_for_emvco,
+    "54" => :rfu_for_emvco,
+    "55" => :rfu_for_emvco,
+    "56" => :rfu_for_emvco,
+    "57" => :rfu_for_emvco,
+    "58" => :rfu_for_emvco,
+    "59" => :rfu_for_emvco,
+    "60" => :rfu_for_emvco,
+    "61" => :rfu_for_emvco,
+    "62" => :rfu_for_emvco,
+    "63" => :rfu_for_emvco,
+    "64" => :rfu_for_emvco,
+    "65" => :rfu_for_emvco,
+    "66" => :rfu_for_emvco,
+    "67" => :rfu_for_emvco,
+    "68" => :rfu_for_emvco,
+    "69" => :rfu_for_emvco,
+    "70" => :rfu_for_emvco,
+    "71" => :rfu_for_emvco,
+    "72" => :rfu_for_emvco,
+    "73" => :rfu_for_emvco,
+    "74" => :rfu_for_emvco,
+    "75" => :rfu_for_emvco,
+    "76" => :rfu_for_emvco,
+    "77" => :rfu_for_emvco,
+    "78" => :rfu_for_emvco,
+    "79" => :rfu_for_emvco,
+    "80" => :rfu_for_emvco,
+    "81" => :rfu_for_emvco,
+    "82" => :rfu_for_emvco,
+    "83" => :rfu_for_emvco,
+    "84" => :rfu_for_emvco,
+    "85" => :rfu_for_emvco,
+    "86" => :rfu_for_emvco,
+    "87" => :rfu_for_emvco,
+    "88" => :rfu_for_emvco,
+    "89" => :rfu_for_emvco,
+    "90" => :rfu_for_emvco,
+    "91" => :rfu_for_emvco,
+    "92" => :rfu_for_emvco,
+    "93" => :rfu_for_emvco,
+    "94" => :rfu_for_emvco,
+    "95" => :rfu_for_emvco,
+    "96" => :rfu_for_emvco,
+    "97" => :rfu_for_emvco,
+    "98" => :rfu_for_emvco,
+    "99" => :rfu_for_emvco
+  }
+
+  @id_64_specs %{
+    language_preference:              %{must: true,  min_len: 2, max_len:  2, regex: nil, parent: nil, is_template: false},
+    merchant_name_alternate_language: %{must: true,  min_len: 1, max_len: 25, regex: nil, parent: nil, is_template: false},
+    merchant_city_alternate_language: %{must: false, min_len: 1, max_len: 15, regex: nil, parent: nil, is_template: false},
+    rfu_for_emvco:                    %{must: false, min_len: 1, max_len: 99, regex: nil, parent: nil, is_template: false}
   }
 
   def id_atoms(:root) do
@@ -260,6 +362,10 @@ defmodule Exemvi.QR.MP.Object do
 
   def id_atoms(:additional_data_field_template) do
     @id_62_id_atoms
+  end
+
+  def id_atoms(:merchant_information_language_template) do
+    @id_64_id_atoms
   end
 
   def id_raw(template, id_atom) do
@@ -274,5 +380,9 @@ defmodule Exemvi.QR.MP.Object do
 
   def specs(:additional_data_field_template) do
     @id_62_specs
+  end
+
+  def specs(:merchant_information_language_template) do
+    @id_64_specs
   end
 end

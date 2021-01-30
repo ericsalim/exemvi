@@ -177,7 +177,7 @@ defmodule Exemvi.QR.MP do
     id_atom = MPO.id_atoms(template)[object.id]
     spec = MPO.specs(template)[id_atom]
 
-    if Enum.count(object.objects || []) > 0 do
+    if spec[:is_template] do
       []
     else
       object_value = object.value || ""
