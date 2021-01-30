@@ -36,6 +36,17 @@ defmodule MPMTest do
     %MPO{id: "63", value: "A13A"}
   ]
 
+  test "idiomatic library usage is successful" do
+    with  {:ok, _} <- MP.validate_qr(@official_sample),
+          {:ok, objects} <- MP.parse_to_objects(@official_sample),
+          {:ok, _} <- MP.validate_objects(objects)
+    do
+      assert Enum.count(objects) > 0
+    else
+      _ -> assert false, "Parsing and/or validation failed"
+    end
+  end
+
   test "official sample qr parsing is successful" do
     with {:ok, objects} <- MP.parse_to_objects(@official_sample)
     do
