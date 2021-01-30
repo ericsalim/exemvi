@@ -64,18 +64,25 @@ defmodule Exemvi.QR.MP do
         qr_rest_next = String.slice(qr_rest, (4 + value_length)..-1)
 
         is_template = MPO.specs(template)[id_atom][:is_template]
-        if is_template do
+
+        maybe_object = case is_template do
+          false ->
+            {:ok, %MPO{id: id_raw, value: value}}
+          true ->
             case parse_to_objects_rest(id_atom, value, []) do
               {:ok, inner_objects} ->
-                object = %MPO{id: id_raw, objects: inner_objects}
-                objects = objects ++ [object]
-                parse_to_objects_rest(template, qr_rest_next, objects)
-              {:error, reasons} -> {:error, reasons}
+                {:ok, %MPO{id: id_raw, objects: inner_objects}}
+              {:error, reasons} ->
+                {:error, reasons}
             end
-        else
-          object = %MPO{id: id_raw, value: value}
-          objects = objects ++ [object]
-          parse_to_objects_rest(template, qr_rest_next, objects)
+        end
+
+        case maybe_object do
+          {:error, reasons} ->
+            {:error, reasons}
+          {:ok, object} ->
+            objects = objects ++ [object]
+            parse_to_objects_rest(template, qr_rest_next, objects)
         end
     end
   end
