@@ -101,10 +101,13 @@ defmodule Exemvi.QR.MP do
   defp validate_objects_exist(template, all_objects) do
     mandatory_ids =
       MPO.specs(template)
-      |> Enum.filter(fn {_, v} -> v[:must] end)
+      |> Enum.filter(fn {_, v} -> v[:must] == true and v[:must_alias] == nil end)
       |> Enum.map(fn {k, _} -> k end)
 
-    supplied_ids = Enum.map(all_objects, fn x -> MPO.id_atoms(template)[x.id] end)
+    supplied_ids =
+      all_objects
+      |> Enum.map(fn x -> MPO.id_atoms(template)[x.id] end)
+      |> Enum.map(fn x -> MPO.specs(template)[x][:must_alias] || x end)
 
     id_exists = fn all_ids, id_to_check, reasons ->
       if Enum.member?(all_ids, id_to_check) do

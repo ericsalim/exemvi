@@ -156,15 +156,41 @@ defmodule MPMTest do
       Exemvi.Error.invalid_object_value(:point_of_initiation_method))
   end
 
-  test "merchant account information is missing" do
-    test_data = Enum.filter(
-      @official_objects,
-      fn x -> MPO.id_atoms(:root)[x.id] != :merchant_account_information end)
+  test "both merchant account information (MAI) and MAI template are missing" do
+    test_data = []
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.missing_object_id(:merchant_account_information))
   end
+
+  test "merchant account information (MAI) exists but MAI template is missing is valid" do
+    test_data = [%MPO{id: "02", value: "ABC" }]
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert not Enum.member?(
+      reasons,
+      Exemvi.Error.missing_object_id(:merchant_account_information))
+  end
+
+  test "merchant account information (MAI) template exists but MAI is missing is valid" do
+    test_data = [%MPO{id: "26", value: "ABC" }]
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert not Enum.member?(
+      reasons,
+      Exemvi.Error.missing_object_id(:merchant_account_information))
+  end
+
+  #test "merchant account information template is parsed into objects" do
+  #  assert false, "TODO"
+  #end
+
+  #test "merchant account information template globally unique identifier is missing" do
+  #  assert false, "TODO"
+  #end
+
+  #test "merchant account information template globally unique identifier is longer than 32 chars" do
+  #  assert false, "TODO"
+  #end
 
   test "merchant category code is missing" do
     test_data = Enum.filter(
@@ -529,7 +555,7 @@ defmodule MPMTest do
       Exemvi.Error.invalid_object_value(:postal_code))
   end
 
-  test "additional data template is parsed into data objects" do
+  test "additional data template is parsed into objects" do
     with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
 
       id_62_raw = MPO.id_raw(:root, :additional_data_field_template)
@@ -673,7 +699,19 @@ defmodule MPMTest do
     |> Enum.each(fn x -> assert x end)
   end
 
-  test "merchant information language template is parsed into data objects" do
+  #test "additional data payment system specific template is parsed into object" do
+  #  assert false, "TODO"
+  #end
+
+  #test "additional data payment system specific template globally unique identifier is missing" do
+  #  assert false, "TODO"
+  #end
+
+  #test "additional data payment system specific template globally unique identifier is longer than 32 chars" do
+  #  assert false, "TODO"
+  #end
+
+  test "merchant information language template is parsed into objects" do
     with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
 
       id_64_raw = MPO.id_raw(:root, :merchant_information_language_template)
@@ -761,4 +799,16 @@ defmodule MPMTest do
       reasons,
       Exemvi.Error.invalid_object_value(:merchant_city_alternate_language))
   end
+
+  #test "unreserved template is parsed into objects" do
+  #  assert false, "TODO"
+  #end
+
+  #test "unreserved template globally unique identifier is missing" do
+  #  assert false, "TODO"
+  #end
+
+  #test "unreserved template globally unique identifier is longer than 32 chars" do
+  #  assert false, "TODO"
+  #end
 end
