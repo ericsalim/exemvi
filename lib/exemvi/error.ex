@@ -10,6 +10,7 @@ defmodule Exemvi.Error do
   def invalid_object_value(:bill_number), do: :invalid_bill_number
   def invalid_object_value(:country_code), do: :invalid_country_code
   def invalid_object_value(:customer_label), do: :invalid_customer_label
+  def invalid_object_value(:globally_unique_identifier), do: :invalid_globally_unique_identifier
   def invalid_object_value(:language_preference), do: :invalid_language_preference
   def invalid_object_value(:loyalty_number), do: :invalid_loyalty_number
   def invalid_object_value(:merchant_category_code), do: :invalid_merchant_category_code
@@ -35,6 +36,7 @@ defmodule Exemvi.Error do
 
   def missing_object_id(:country_code), do: :missing_country_code
   def missing_object_id(:crc), do: :missing_crc
+  def missing_object_id(:globally_unique_identifier), do: :missing_globally_unique_identifier
   def missing_object_id(:language_preference), do: :missing_language_preference
   def missing_object_id(:merchant_account_information), do: :missing_merchant_account_information
   def missing_object_id(:merchant_category_code), do: :missing_merchant_category_code

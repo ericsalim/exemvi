@@ -113,7 +113,7 @@ defmodule Exemvi.QR.MP.Object do
     payload_format_indicator:               %{must: true,  must_alias: nil,                           min_len: 2, max_len:  2, regex: ~r/(^01$)/,               parent: nil,                           is_template: false},
     point_of_initiation_method:             %{must: false, must_alias: nil,                           min_len: 2, max_len:  2, regex: ~r/(^11$)|(^12$)/,        parent: nil,                           is_template: false},
     merchant_account_information:           %{must: true,  must_alias: nil,                           min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false},
-    merchant_account_information_template:  %{must: true,  must_alias: :merchant_account_information, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false},
+    merchant_account_information_template:  %{must: true,  must_alias: :merchant_account_information, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: true},
     merchant_category_code:                 %{must: true,  must_alias: nil,                           min_len: 4, max_len:  4, regex: ~r/^\d+$/,                parent: nil,                           is_template: false},
     transaction_currency:                   %{must: true,  must_alias: nil,                           min_len: 3, max_len:  3, regex: ~r/^\d+$/,                parent: nil,                           is_template: false},
     transaction_amount:                     %{must: false, must_alias: nil,                           min_len: 1, max_len: 13, regex: ~r/(^\d+\.\d+$)|(^\d+$)/, parent: nil,                           is_template: false},
@@ -129,6 +129,114 @@ defmodule Exemvi.QR.MP.Object do
     merchant_information_language_template: %{must: false, must_alias: nil,                           min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: true},
     rfu_for_emvco:                          %{must: false, must_alias: nil,                           min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false},
     unreserved_template:                    %{must: false, must_alias: nil,                           min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false}
+  }
+
+  @id_26_to_51_id_atoms %{
+    "00" => :globally_unique_identifier,
+    "01" => :payment_network_specific,
+    "02" => :payment_network_specific,
+    "03" => :payment_network_specific,
+    "04" => :payment_network_specific,
+    "05" => :payment_network_specific,
+    "06" => :payment_network_specific,
+    "07" => :payment_network_specific,
+    "08" => :payment_network_specific,
+    "09" => :payment_network_specific,
+    "10" => :payment_network_specific,
+    "11" => :payment_network_specific,
+    "12" => :payment_network_specific,
+    "13" => :payment_network_specific,
+    "14" => :payment_network_specific,
+    "15" => :payment_network_specific,
+    "16" => :payment_network_specific,
+    "17" => :payment_network_specific,
+    "18" => :payment_network_specific,
+    "19" => :payment_network_specific,
+    "20" => :payment_network_specific,
+    "21" => :payment_network_specific,
+    "22" => :payment_network_specific,
+    "23" => :payment_network_specific,
+    "24" => :payment_network_specific,
+    "25" => :payment_network_specific,
+    "26" => :payment_network_specific,
+    "27" => :payment_network_specific,
+    "28" => :payment_network_specific,
+    "29" => :payment_network_specific,
+    "30" => :payment_network_specific,
+    "31" => :payment_network_specific,
+    "32" => :payment_network_specific,
+    "33" => :payment_network_specific,
+    "34" => :payment_network_specific,
+    "35" => :payment_network_specific,
+    "36" => :payment_network_specific,
+    "37" => :payment_network_specific,
+    "38" => :payment_network_specific,
+    "39" => :payment_network_specific,
+    "40" => :payment_network_specific,
+    "41" => :payment_network_specific,
+    "42" => :payment_network_specific,
+    "43" => :payment_network_specific,
+    "44" => :payment_network_specific,
+    "45" => :payment_network_specific,
+    "46" => :payment_network_specific,
+    "47" => :payment_network_specific,
+    "48" => :payment_network_specific,
+    "49" => :payment_network_specific,
+    "50" => :payment_network_specific,
+    "51" => :payment_network_specific,
+    "52" => :payment_network_specific,
+    "53" => :payment_network_specific,
+    "54" => :payment_network_specific,
+    "55" => :payment_network_specific,
+    "56" => :payment_network_specific,
+    "57" => :payment_network_specific,
+    "58" => :payment_network_specific,
+    "59" => :payment_network_specific,
+    "60" => :payment_network_specific,
+    "61" => :payment_network_specific,
+    "62" => :payment_network_specific,
+    "63" => :payment_network_specific,
+    "64" => :payment_network_specific,
+    "65" => :payment_network_specific,
+    "66" => :payment_network_specific,
+    "67" => :payment_network_specific,
+    "68" => :payment_network_specific,
+    "69" => :payment_network_specific,
+    "70" => :payment_network_specific,
+    "71" => :payment_network_specific,
+    "72" => :payment_network_specific,
+    "73" => :payment_network_specific,
+    "74" => :payment_network_specific,
+    "75" => :payment_network_specific,
+    "76" => :payment_network_specific,
+    "77" => :payment_network_specific,
+    "78" => :payment_network_specific,
+    "79" => :payment_network_specific,
+    "80" => :payment_network_specific,
+    "81" => :payment_network_specific,
+    "82" => :payment_network_specific,
+    "83" => :payment_network_specific,
+    "84" => :payment_network_specific,
+    "85" => :payment_network_specific,
+    "86" => :payment_network_specific,
+    "87" => :payment_network_specific,
+    "88" => :payment_network_specific,
+    "89" => :payment_network_specific,
+    "90" => :payment_network_specific,
+    "91" => :payment_network_specific,
+    "92" => :payment_network_specific,
+    "93" => :payment_network_specific,
+    "94" => :payment_network_specific,
+    "95" => :payment_network_specific,
+    "96" => :payment_network_specific,
+    "97" => :payment_network_specific,
+    "98" => :payment_network_specific,
+    "99" => :payment_network_specific
+  }
+
+  @id_26_to_51_specs %{
+    globally_unique_identifier: %{must: true,  must_alias: nil, min_len: 1, max_len: 32, regex: nil, parent: nil, is_template: false},
+    payment_network_specific:   %{must: false, must_alias: nil, min_len: 1, max_len: 99, regex: nil, parent: nil, is_template: false},
   }
 
   @id_62_id_atoms %{
@@ -361,6 +469,10 @@ defmodule Exemvi.QR.MP.Object do
     @root_id_atoms
   end
 
+  def id_atoms(:merchant_account_information_template) do
+    @id_26_to_51_id_atoms
+  end
+
   def id_atoms(:additional_data_field_template) do
     @id_62_id_atoms
   end
@@ -377,6 +489,10 @@ defmodule Exemvi.QR.MP.Object do
 
   def specs(:root) do
     @root_specs
+  end
+
+  def specs(:merchant_account_information_template) do
+    @id_26_to_51_specs
   end
 
   def specs(:additional_data_field_template) do
