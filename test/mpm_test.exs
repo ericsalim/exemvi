@@ -115,9 +115,7 @@ defmodule MPMTest do
   end
 
   test "payload format indicator is missing" do
-    test_data = Enum.filter(
-      @official_objects,
-      fn x -> MPO.id_atoms(:root)[x.id] != :payload_format_indicator end)
+    test_data = []
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -125,15 +123,7 @@ defmodule MPMTest do
   end
 
   test "payload format indicator is not 01" do
-    test_data = @official_objects
-
-    code = MPO.id_raw(:root, :payload_format_indicator)
-
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "02"})
-
+    test_data = [%MPO{id: "00", value: "02"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -141,25 +131,13 @@ defmodule MPMTest do
   end
 
   test "point of initiation value is not 11 or 12" do
-    test_data = @official_objects
-
-    code = MPO.id_raw(:root, :point_of_initiation_method)
-
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "10"})
-
+    test_data = [%MPO{id: "01", value: "10"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:point_of_initiation_method))
 
-      test_data = List.replace_at(
-        test_data,
-        Enum.find_index(test_data, fn x -> x.id == code end),
-        %MPO{id: code, value: "13"})
-
+    test_data = [%MPO{id: "01", value: "13"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -245,9 +223,7 @@ defmodule MPMTest do
   end
 
   test "merchant category code is missing" do
-    test_data = Enum.filter(
-      @official_objects,
-      fn x -> MPO.id_atoms(:root)[x.id] != :merchant_category_code end)
+    test_data = []
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -255,36 +231,19 @@ defmodule MPMTest do
   end
 
   test "merchant category code value is not 4 integer digits" do
-
-    test_data = @official_objects
-
-    code = MPO.id_raw(:root, :merchant_category_code)
-
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "12AB"})
-
+    test_data = [%MPO{id: "52", value: "12AB"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:merchant_category_code))
 
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "123"})
-
+    test_data = [%MPO{id: "52", value: "123"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:merchant_category_code))
 
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "12345"})
-
+    test_data = [%MPO{id: "52", value: "12345"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -292,9 +251,7 @@ defmodule MPMTest do
   end
 
   test "transaction currency is missing" do
-    test_data = Enum.filter(
-      @official_objects,
-      fn x -> MPO.id_atoms(:root)[x.id] != :transaction_currency end)
+    test_data = []
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -302,35 +259,19 @@ defmodule MPMTest do
   end
 
   test "transaction currency value is not 3 integer digits" do
-    test_data = @official_objects
-
-    code = MPO.id_raw(:root, :transaction_currency)
-
-    test_data = List.insert_at(
-      test_data,
-      0,
-      %MPO{id: code, value: "12AB"})
-
+    test_data = [%MPO{id: "53", value: "12AB"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:transaction_currency))
 
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "12"})
-
+    test_data = [%MPO{id: "53", value: "12"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:transaction_currency))
 
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "1234"})
-
+    test_data = [%MPO{id: "53", value: "1234"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -339,25 +280,13 @@ defmodule MPMTest do
 
   test "transaction amount value is longer than 13 decimal digits" do
 
-    test_data = @official_objects
-
-    code = MPO.id_raw(:root, :transaction_amount)
-
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "12345678901234"})
-
+    test_data = [%MPO{id: "54", value: String.duplicate("1", 14)}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:transaction_amount))
 
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "123456789012.4"})
-
+    test_data = [%MPO{id: "54", value: "123456789012.4"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -366,35 +295,19 @@ defmodule MPMTest do
 
   test "convenience indicator is not 2 integer digits" do
 
-    test_data = @official_objects
-
-    code = MPO.id_raw(:root, :tip_or_convenience_indicator)
-
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "1A"})
-
+    test_data = [%MPO{id: "55", value: "1A"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:tip_or_convenience_indicator))
 
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "1"})
-
+    test_data = [%MPO{id: "55", value: "1"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:tip_or_convenience_indicator))
 
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "123"})
-
+    test_data = [%MPO{id: "55", value: "123"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -402,23 +315,7 @@ defmodule MPMTest do
   end
 
   test "convenience fee fixed is orphaned" do
-    test_data = @official_objects
-
-    convenience_code = MPO.id_raw(:root, :tip_or_convenience_indicator)
-
-    test_data = List.delete_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == convenience_code end))
-
-    test_data = List.insert_at(
-      test_data,
-      0,
-      %MPO
-      {
-        id: MPO.id_raw(:root, :value_of_convenience_fee_fixed),
-        value: "1"
-      })
-
+    test_data = [%MPO{id: "56", value: "1"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -427,25 +324,13 @@ defmodule MPMTest do
 
   test "convenience fee fixed is longer than 13 decimal digits" do
 
-    test_data = @official_objects
-
-    code = MPO.id_raw(:root, :value_of_convenience_fee_fixed)
-
-    test_data = List.insert_at(
-      test_data,
-      0,
-      %MPO{id: code, value: "12345678901234"})
-
+    test_data = [%MPO{id: "56", value: String.duplicate("1", 14)}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:value_of_convenience_fee_fixed))
 
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "123456789012.4"})
-
+    test_data = [%MPO{id: "56", value: "123456789012.4"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -453,23 +338,7 @@ defmodule MPMTest do
   end
 
   test "convenience fee percentage is orphaned" do
-    test_data = @official_objects
-
-    convenience_code = MPO.id_raw(:root, :tip_or_convenience_indicator)
-
-    test_data = List.delete_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == convenience_code end))
-
-    test_data = List.insert_at(
-      test_data,
-      0,
-      %MPO
-      {
-        id: MPO.id_raw(:root, :value_of_convenience_fee_percentage),
-        value: "1"
-      })
-
+    test_data = [%MPO{id: "57", value: "1"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -477,25 +346,13 @@ defmodule MPMTest do
   end
 
   test "convenience fee percentage is longer than 5 decimal digits" do
-    test_data = @official_objects
-
-    code = MPO.id_raw(:root, :value_of_convenience_fee_percentage)
-
-    test_data = List.insert_at(
-      test_data,
-      0,
-      %MPO{id: code, value: "123456"})
-
+    test_data = [%MPO{id: "57", value: String.duplicate("1", 6)}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:value_of_convenience_fee_percentage))
 
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "1234.6"})
-
+    test_data = [%MPO{id: "57", value: "1234.6"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -503,9 +360,7 @@ defmodule MPMTest do
   end
 
   test "country code is missing" do
-    test_data = Enum.filter(
-      @official_objects,
-      fn x -> MPO.id_atoms(:root)[x.id] != :country_code end)
+    test_data = []
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -513,26 +368,13 @@ defmodule MPMTest do
   end
 
   test "country code is not 2 chars" do
-
-    test_data = @official_objects
-
-    code = MPO.id_raw(:root, :country_code)
-
-    test_data = List.insert_at(
-      test_data,
-      0,
-      %MPO{id: code, value: "A"})
-
+    test_data = [%MPO{id: "58", value: "A"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
       Exemvi.Error.invalid_object_value(:country_code))
 
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: "ABC"})
-
+    test_data = [%MPO{id: "58", value: "ABC"}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -540,9 +382,7 @@ defmodule MPMTest do
   end
 
   test "merchant name is missing" do
-    test_data = Enum.filter(
-      @official_objects,
-      fn x -> MPO.id_atoms(:root)[x.id] != :merchant_name end)
+    test_data = []
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -550,25 +390,15 @@ defmodule MPMTest do
   end
 
   test "merchant name is longer than 25 chars" do
-    test_data = @official_objects
-
-    code = MPO.id_raw(:root, :country_code)
-
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: String.duplicate("x", 26)})
-
+    test_data = [%MPO{id: "59", value: String.duplicate("x", 26)}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
-      Exemvi.Error.invalid_object_value(:country_code))
+      Exemvi.Error.invalid_object_value(:merchant_name))
   end
 
   test "merchant city is missing" do
-    test_data = Enum.filter(
-      @official_objects,
-      fn x -> MPO.id_atoms(:root)[x.id] != :merchant_city end)
+    test_data = []
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -576,15 +406,7 @@ defmodule MPMTest do
   end
 
   test "merchant city is longer than 15 chars" do
-    test_data = @official_objects
-
-    code = MPO.id_raw(:root, :merchant_city)
-
-    test_data = List.replace_at(
-      test_data,
-      Enum.find_index(test_data, fn x -> x.id == code end),
-      %MPO{id: code, value: String.duplicate("x", 16)})
-
+    test_data = [%MPO{id: "60", value: String.duplicate("x", 16)}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
@@ -592,15 +414,7 @@ defmodule MPMTest do
   end
 
   test "postal code is longer than 10 chars" do
-    test_data = @official_objects
-
-    code = MPO.id_raw(:root, :postal_code)
-
-    test_data = List.insert_at(
-      test_data,
-      0,
-      %MPO{id: code, value: String.duplicate("x", 11)})
-
+    test_data = [%MPO{id: "61", value: String.duplicate("x", 11)}]
     {:error, reasons} = MP.validate_objects(test_data)
     assert Enum.member?(
       reasons,
