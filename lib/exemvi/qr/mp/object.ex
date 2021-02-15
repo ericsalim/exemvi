@@ -352,7 +352,115 @@ defmodule Exemvi.QR.MP.Object do
     purpose_of_transaction:           %{must: false, must_alias: nil, min_len: 1, max_len: 25, regex: nil,                                                                                                            parent: nil, is_template: false},
     additional_consumer_data_request: %{must: false, must_alias: nil, min_len: 1, max_len:  3, regex: ~r/(^A$)|(^M$)|(^E$)|(^AM$)|(^AE$)|(^MA$)|(^ME$)|(^EA$)|(EM$)|(^AME$)|(^AEM$)|(^MAE$)|(^MEA$)|(^EAM$)|(^EMA$)/, parent: nil, is_template: false},
     rfu_for_emvco:                    %{must: false, must_alias: nil, min_len: 1, max_len: 99, regex: nil,                                                                                                            parent: nil, is_template: false},
-    payment_system_specific_template: %{must: false, must_alias: nil, min_len: 1, max_len: 99, regex: nil,                                                                                                            parent: nil, is_template: false}
+    payment_system_specific_template: %{must: false, must_alias: nil, min_len: 1, max_len: 99, regex: nil,                                                                                                            parent: nil, is_template: true }
+  }
+
+  @id_62_01_to_99_atoms %{
+    "00" => :globally_unique_identifier,
+    "01" => :payment_system_specific,
+    "02" => :payment_system_specific,
+    "03" => :payment_system_specific,
+    "04" => :payment_system_specific,
+    "05" => :payment_system_specific,
+    "06" => :payment_system_specific,
+    "07" => :payment_system_specific,
+    "08" => :payment_system_specific,
+    "09" => :payment_system_specific,
+    "10" => :payment_system_specific,
+    "11" => :payment_system_specific,
+    "12" => :payment_system_specific,
+    "13" => :payment_system_specific,
+    "14" => :payment_system_specific,
+    "15" => :payment_system_specific,
+    "16" => :payment_system_specific,
+    "17" => :payment_system_specific,
+    "18" => :payment_system_specific,
+    "19" => :payment_system_specific,
+    "20" => :payment_system_specific,
+    "21" => :payment_system_specific,
+    "22" => :payment_system_specific,
+    "23" => :payment_system_specific,
+    "24" => :payment_system_specific,
+    "25" => :payment_system_specific,
+    "26" => :payment_system_specific,
+    "27" => :payment_system_specific,
+    "28" => :payment_system_specific,
+    "29" => :payment_system_specific,
+    "30" => :payment_system_specific,
+    "31" => :payment_system_specific,
+    "32" => :payment_system_specific,
+    "33" => :payment_system_specific,
+    "34" => :payment_system_specific,
+    "35" => :payment_system_specific,
+    "36" => :payment_system_specific,
+    "37" => :payment_system_specific,
+    "38" => :payment_system_specific,
+    "39" => :payment_system_specific,
+    "40" => :payment_system_specific,
+    "41" => :payment_system_specific,
+    "42" => :payment_system_specific,
+    "43" => :payment_system_specific,
+    "44" => :payment_system_specific,
+    "45" => :payment_system_specific,
+    "46" => :payment_system_specific,
+    "47" => :payment_system_specific,
+    "48" => :payment_system_specific,
+    "49" => :payment_system_specific,
+    "50" => :payment_system_specific,
+    "51" => :payment_system_specific,
+    "52" => :payment_system_specific,
+    "53" => :payment_system_specific,
+    "54" => :payment_system_specific,
+    "55" => :payment_system_specific,
+    "56" => :payment_system_specific,
+    "57" => :payment_system_specific,
+    "58" => :payment_system_specific,
+    "59" => :payment_system_specific,
+    "60" => :payment_system_specific,
+    "61" => :payment_system_specific,
+    "62" => :payment_system_specific,
+    "63" => :payment_system_specific,
+    "64" => :payment_system_specific,
+    "65" => :payment_system_specific,
+    "66" => :payment_system_specific,
+    "67" => :payment_system_specific,
+    "68" => :payment_system_specific,
+    "69" => :payment_system_specific,
+    "70" => :payment_system_specific,
+    "71" => :payment_system_specific,
+    "72" => :payment_system_specific,
+    "73" => :payment_system_specific,
+    "74" => :payment_system_specific,
+    "75" => :payment_system_specific,
+    "76" => :payment_system_specific,
+    "77" => :payment_system_specific,
+    "78" => :payment_system_specific,
+    "79" => :payment_system_specific,
+    "80" => :payment_system_specific,
+    "81" => :payment_system_specific,
+    "82" => :payment_system_specific,
+    "83" => :payment_system_specific,
+    "84" => :payment_system_specific,
+    "85" => :payment_system_specific,
+    "86" => :payment_system_specific,
+    "87" => :payment_system_specific,
+    "88" => :payment_system_specific,
+    "89" => :payment_system_specific,
+    "90" => :payment_system_specific,
+    "91" => :payment_system_specific,
+    "92" => :payment_system_specific,
+    "93" => :payment_system_specific,
+    "94" => :payment_system_specific,
+    "95" => :payment_system_specific,
+    "96" => :payment_system_specific,
+    "97" => :payment_system_specific,
+    "98" => :payment_system_specific,
+    "99" => :payment_system_specific
+  }
+
+  @id_62_01_to_99_specs %{
+    globally_unique_identifier: %{must: true,  must_alias: nil, min_len: 1, max_len: 32, regex: nil, parent: nil, is_template: false},
+    payment_system_specific:    %{must: false, must_alias: nil, min_len: 1, max_len: 99, regex: nil, parent: nil, is_template: false}
   }
 
   @id_64_id_atoms %{
@@ -477,6 +585,10 @@ defmodule Exemvi.QR.MP.Object do
     @id_62_id_atoms
   end
 
+  def id_atoms(:payment_system_specific_template) do
+    @id_62_01_to_99_atoms
+  end
+
   def id_atoms(:merchant_information_language_template) do
     @id_64_id_atoms
   end
@@ -497,6 +609,10 @@ defmodule Exemvi.QR.MP.Object do
 
   def specs(:additional_data_field_template) do
     @id_62_specs
+  end
+
+  def specs(:payment_system_specific_template) do
+    @id_62_01_to_99_specs
   end
 
   def specs(:merchant_information_language_template) do

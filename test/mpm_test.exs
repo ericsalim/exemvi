@@ -565,17 +565,80 @@ defmodule MPMTest do
     |> Enum.each(fn x -> assert x end)
   end
 
-  #test "additional data payment system specific template is parsed into object" do
-  #  assert false, "TODO"
-  #end
+  test "additional data payment system specific template is parsed into object" do
+    test_data = "623050260015org.example.www0103ABC"
 
-  #test "additional data payment system specific template globally unique identifier is missing" do
-  #  assert false, "TODO"
-  #end
+    with {:ok, objects} <- MP.parse_to_objects(test_data) do
 
-  #test "additional data payment system specific template globally unique identifier is longer than 32 chars" do
-  #  assert false, "TODO"
-  #end
+      object_62 = Enum.find(objects, fn x -> x.id == "62" end)
+
+      assert object_62 != nil
+      assert object_62.objects != nil
+      assert Enum.count(object_62.objects) == 1
+
+      object_62_50 = object_62.objects |> Enum.at(0)
+      assert object_62_50.id == "50"
+      assert Enum.count(object_62_50.objects) == 2
+
+      globally_unique_identifier = object_62_50.objects |> Enum.at(0)
+      assert globally_unique_identifier.id == "00"
+      assert globally_unique_identifier.value == "org.example.www"
+
+      payment_system_specific = object_62_50.objects |> Enum.at(1)
+      assert payment_system_specific.id == "01"
+      assert payment_system_specific.value == "ABC"
+    else
+      _ -> assert false, "Failed parsing additional data payment system specific template"
+    end
+  end
+
+  test "additional data payment system specific template globally unique identifier is missing" do
+    test_data = [
+      %MPO{
+        id: "62",
+        objects: [
+          %MPO{
+            id: "50",
+            objects: [
+              %MPO{
+                id: "01",
+                value: "ABC"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.missing_object_id(:globally_unique_identifier))
+  end
+
+  test "additional data payment system specific template globally unique identifier is longer than 32 chars" do
+    test_data = [
+      %MPO{
+        id: "62",
+        objects: [
+          %MPO{
+            id: "50",
+            objects: [
+              %MPO{
+                id: "00",
+                value: String.duplicate("x", 33)
+              }
+            ]
+          }
+        ]
+      }
+    ]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.invalid_object_value(:globally_unique_identifier))
+  end
 
   test "merchant information language template is parsed into objects" do
     with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
