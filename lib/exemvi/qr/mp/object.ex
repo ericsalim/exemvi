@@ -113,7 +113,7 @@ defmodule Exemvi.QR.MP.Object do
     payload_format_indicator:               %{must: true,  must_alias: nil,                           min_len: 2, max_len:  2, regex: ~r/(^01$)/,               parent: nil,                           is_template: false},
     point_of_initiation_method:             %{must: false, must_alias: nil,                           min_len: 2, max_len:  2, regex: ~r/(^11$)|(^12$)/,        parent: nil,                           is_template: false},
     merchant_account_information:           %{must: true,  must_alias: nil,                           min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false},
-    merchant_account_information_template:  %{must: true,  must_alias: :merchant_account_information, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: true},
+    merchant_account_information_template:  %{must: true,  must_alias: :merchant_account_information, min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: true },
     merchant_category_code:                 %{must: true,  must_alias: nil,                           min_len: 4, max_len:  4, regex: ~r/^\d+$/,                parent: nil,                           is_template: false},
     transaction_currency:                   %{must: true,  must_alias: nil,                           min_len: 3, max_len:  3, regex: ~r/^\d+$/,                parent: nil,                           is_template: false},
     transaction_amount:                     %{must: false, must_alias: nil,                           min_len: 1, max_len: 13, regex: ~r/(^\d+\.\d+$)|(^\d+$)/, parent: nil,                           is_template: false},
@@ -126,9 +126,9 @@ defmodule Exemvi.QR.MP.Object do
     postal_code:                            %{must: false, must_alias: nil,                           min_len: 1, max_len: 10, regex: nil,                      parent: nil,                           is_template: false},
     additional_data_field_template:         %{must: false, must_alias: nil,                           min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: true },
     crc:                                    %{must: true , must_alias: nil,                           min_len: 1, max_len:  4, regex: nil,                      parent: nil,                           is_template: false},
-    merchant_information_language_template: %{must: false, must_alias: nil,                           min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: true},
+    merchant_information_language_template: %{must: false, must_alias: nil,                           min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: true },
     rfu_for_emvco:                          %{must: false, must_alias: nil,                           min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false},
-    unreserved_template:                    %{must: false, must_alias: nil,                           min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: false}
+    unreserved_template:                    %{must: false, must_alias: nil,                           min_len: 1, max_len: 99, regex: nil,                      parent: nil,                           is_template: true }
   }
 
   @id_26_to_51_id_atoms %{
@@ -573,6 +573,114 @@ defmodule Exemvi.QR.MP.Object do
     rfu_for_emvco:                    %{must: false, must_alias: nil, min_len: 1, max_len: 99, regex: nil, parent: nil, is_template: false}
   }
 
+  @id_80_to_99_id_atoms %{
+    "00" => :globally_unique_identifier,
+    "01" => :context_specific_data,
+    "02" => :context_specific_data,
+    "03" => :context_specific_data,
+    "04" => :context_specific_data,
+    "05" => :context_specific_data,
+    "06" => :context_specific_data,
+    "07" => :context_specific_data,
+    "08" => :context_specific_data,
+    "09" => :context_specific_data,
+    "10" => :context_specific_data,
+    "11" => :context_specific_data,
+    "12" => :context_specific_data,
+    "13" => :context_specific_data,
+    "14" => :context_specific_data,
+    "15" => :context_specific_data,
+    "16" => :context_specific_data,
+    "17" => :context_specific_data,
+    "18" => :context_specific_data,
+    "19" => :context_specific_data,
+    "20" => :context_specific_data,
+    "21" => :context_specific_data,
+    "22" => :context_specific_data,
+    "23" => :context_specific_data,
+    "24" => :context_specific_data,
+    "25" => :context_specific_data,
+    "26" => :context_specific_data,
+    "27" => :context_specific_data,
+    "28" => :context_specific_data,
+    "29" => :context_specific_data,
+    "30" => :context_specific_data,
+    "31" => :context_specific_data,
+    "32" => :context_specific_data,
+    "33" => :context_specific_data,
+    "34" => :context_specific_data,
+    "35" => :context_specific_data,
+    "36" => :context_specific_data,
+    "37" => :context_specific_data,
+    "38" => :context_specific_data,
+    "39" => :context_specific_data,
+    "40" => :context_specific_data,
+    "41" => :context_specific_data,
+    "42" => :context_specific_data,
+    "43" => :context_specific_data,
+    "44" => :context_specific_data,
+    "45" => :context_specific_data,
+    "46" => :context_specific_data,
+    "47" => :context_specific_data,
+    "48" => :context_specific_data,
+    "49" => :context_specific_data,
+    "50" => :context_specific_data,
+    "51" => :context_specific_data,
+    "52" => :context_specific_data,
+    "53" => :context_specific_data,
+    "54" => :context_specific_data,
+    "55" => :context_specific_data,
+    "56" => :context_specific_data,
+    "57" => :context_specific_data,
+    "58" => :context_specific_data,
+    "59" => :context_specific_data,
+    "60" => :context_specific_data,
+    "61" => :context_specific_data,
+    "62" => :context_specific_data,
+    "63" => :context_specific_data,
+    "64" => :context_specific_data,
+    "65" => :context_specific_data,
+    "66" => :context_specific_data,
+    "67" => :context_specific_data,
+    "68" => :context_specific_data,
+    "69" => :context_specific_data,
+    "70" => :context_specific_data,
+    "71" => :context_specific_data,
+    "72" => :context_specific_data,
+    "73" => :context_specific_data,
+    "74" => :context_specific_data,
+    "75" => :context_specific_data,
+    "76" => :context_specific_data,
+    "77" => :context_specific_data,
+    "78" => :context_specific_data,
+    "79" => :context_specific_data,
+    "80" => :context_specific_data,
+    "81" => :context_specific_data,
+    "82" => :context_specific_data,
+    "83" => :context_specific_data,
+    "84" => :context_specific_data,
+    "85" => :context_specific_data,
+    "86" => :context_specific_data,
+    "87" => :context_specific_data,
+    "88" => :context_specific_data,
+    "89" => :context_specific_data,
+    "90" => :context_specific_data,
+    "91" => :context_specific_data,
+    "92" => :context_specific_data,
+    "93" => :context_specific_data,
+    "94" => :context_specific_data,
+    "95" => :context_specific_data,
+    "96" => :context_specific_data,
+    "97" => :context_specific_data,
+    "98" => :context_specific_data,
+    "99" => :context_specific_data
+  }
+
+  @id_80_to_99_specs %{
+    globally_unique_identifier: %{must: true,  must_alias: nil, min_len: 1, max_len: 32, regex: nil, parent: nil, is_template: false},
+    context_specific_data:      %{must: false, must_alias: nil, min_len: 1, max_len: 99, regex: nil, parent: nil, is_template: false},
+  }
+
   def id_atoms(:root) do
     @root_id_atoms
   end
@@ -591,6 +699,10 @@ defmodule Exemvi.QR.MP.Object do
 
   def id_atoms(:merchant_information_language_template) do
     @id_64_id_atoms
+  end
+
+  def id_atoms(:unreserved_template) do
+    @id_80_to_99_id_atoms
   end
 
   def id_raw(template, id_atom) do
@@ -617,5 +729,9 @@ defmodule Exemvi.QR.MP.Object do
 
   def specs(:merchant_information_language_template) do
     @id_64_specs
+  end
+
+  def specs(:unreserved_template) do
+    @id_80_to_99_specs
   end
 end

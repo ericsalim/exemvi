@@ -729,15 +729,64 @@ defmodule MPMTest do
       Exemvi.Error.invalid_object_value(:merchant_city_alternate_language))
   end
 
-  #test "unreserved template is parsed into objects" do
-  #  assert false, "TODO"
-  #end
+  test "unreserved template is parsed into objects" do
+    test_data = "80260015org.example.www0103ABC"
 
-  #test "unreserved template globally unique identifier is missing" do
-  #  assert false, "TODO"
-  #end
+    with {:ok, objects} <- MP.parse_to_objects(test_data) do
 
-  #test "unreserved template globally unique identifier is longer than 32 chars" do
-  #  assert false, "TODO"
-  #end
+      object_80 = Enum.find(objects, fn x -> x.id == "80" end)
+
+      assert object_80 != nil
+      assert object_80.objects != nil
+      assert Enum.count(object_80.objects) == 2
+
+      globally_unique_identifier = object_80.objects |> Enum.at(0)
+      assert globally_unique_identifier.id == "00"
+      assert globally_unique_identifier.value == "org.example.www"
+
+      context_specific_data = object_80.objects |> Enum.at(1)
+      assert context_specific_data.id == "01"
+      assert context_specific_data.value == "ABC"
+    else
+      _ -> assert false, "Failed parsing unreserved template"
+    end
+  end
+
+  test "unreserved template globally unique identifier is missing" do
+    test_data = [
+      %MPO{
+        id: "80",
+        objects: [
+          %MPO{
+            id: "01",
+            value: "ABC"
+          }
+        ]
+      }
+    ]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.missing_object_id(:globally_unique_identifier))
+  end
+
+  test "unreserved template globally unique identifier is longer than 32 chars" do
+    test_data = [
+      %MPO{
+        id: "80",
+        objects: [
+          %MPO{
+            id: "00",
+            value: String.duplicate("x", 33)
+          }
+        ]
+      }
+    ]
+
+    {:error, reasons} = MP.validate_objects(test_data)
+    assert Enum.member?(
+      reasons,
+      Exemvi.Error.invalid_object_value(:globally_unique_identifier))
+  end
 end
