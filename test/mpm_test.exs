@@ -47,14 +47,12 @@ defmodule MPMTest do
   ]
 
   test "basic usage of parsing and validation is successful" do
-    with  {:ok, _} <- MP.validate_qr(@official_sample),
-          {:ok, objects} <- MP.parse_to_objects(@official_sample),
-          {:ok, _} <- MP.validate_objects(objects)
-    do
-      assert Enum.count(objects) > 0
-    else
-      _ -> assert false, "Parsing and/or validation failed"
-    end
+    {:ok, objects} = @official_sample
+                     |> MP.validate_qr()
+                     |> MP.parse_to_objects()
+                     |> MP.validate_objects()
+
+    assert Enum.count(objects) > 0
   end
 
   test "official sample qr parsing is successful" do
@@ -84,16 +82,16 @@ defmodule MPMTest do
 
   test "qr data length is not numeric" do
     payload = "00A201"
-    {result, reason} = MP.parse_to_objects(payload)
+    {result, reasons} = MP.parse_to_objects(payload)
     assert result == :error
-    assert reason == :invalid_value_length
+    assert Enum.member?(reasons, Exemvi.Error.invalid_value_length)
   end
 
   test "qr does not start with payload format indicator" do
     wrong_payload = @official_sample <> "01"
 
-    {:error, reason} = MP.validate_qr(wrong_payload)
-    assert reason == Exemvi.Error.invalid_qr
+    {:error, reasons} = MP.validate_qr(wrong_payload)
+    assert Enum.member?(reasons, Exemvi.Error.invalid_qr)
   end
 
   test "qr checksum is invalid" do
@@ -102,8 +100,8 @@ defmodule MPMTest do
     wrong_checksum = "ABCD"
     wrong_payload = without_checksum <> wrong_checksum
 
-    {:error, reason} = MP.validate_qr(wrong_payload)
-    assert reason == Exemvi.Error.invalid_qr
+    {:error, reasons} = MP.validate_qr(wrong_payload)
+    assert Enum.member?(reasons, Exemvi.Error.invalid_qr)
   end
 
   test "official data object sample is valid" do

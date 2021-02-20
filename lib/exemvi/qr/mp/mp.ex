@@ -19,23 +19,39 @@ defmodule Exemvi.QR.MP do
     all_ok = all_ok and qr_checksum == expected_checksum
 
     if all_ok do
-      {:ok, nil}
+      {:ok, qr}
     else
-      {:error, Exemvi.Error.invalid_qr}
+      {:error, [Exemvi.Error.invalid_qr]}
     end
+  end
+
+  def parse_to_objects({:ok, qr}) do
+    parse_to_objects(qr)
+  end
+
+  def parse_to_objects({:error, reasons}) do
+    {:error, reasons}
   end
 
   def parse_to_objects(qr) do
     case parse_to_objects_rest(:root, qr, []) do
       {:ok, objects} -> {:ok, objects}
-      {:error, reason} -> {:error, reason}
+      {:error, reasons} -> {:error, reasons}
     end
+  end
+
+  def validate_objects({:ok, objects}) do
+    validate_objects(objects)
+  end
+
+  def validate_objects({:error, reasons}) do
+    {:error, reasons}
   end
 
   def validate_objects(objects) do
     reasons = validate_all_objects_rest(:root, objects, [])
     if Enum.count(reasons) == 0 do
-      {:ok, nil}
+      {:ok, objects}
     else
       {:error, reasons}
     end
@@ -57,8 +73,8 @@ defmodule Exemvi.QR.MP do
     end
 
     cond do
-      id_atom == nil -> {:error, Exemvi.Error.invalid_object_id}
-      value_length == 0 -> {:error, Exemvi.Error.invalid_value_length}
+      id_atom == nil -> {:error, [Exemvi.Error.invalid_object_id]}
+      value_length == 0 -> {:error, [Exemvi.Error.invalid_value_length]}
       true ->
         value = String.slice(qr_rest, 4, value_length)
         qr_rest_next = String.slice(qr_rest, (4 + value_length)..-1)
