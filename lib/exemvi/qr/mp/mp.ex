@@ -3,9 +3,16 @@ defmodule Exemvi.QR.MP do
   alias Exemvi.QR.MP.Object, as: MPO
 
   @moduledoc """
-  Helpers for MPM (Merchant Presented Mode)
+  Core functions for Merchant-Presented Mode QR Code
   """
 
+  @doc """
+  Validate whole QR Code
+
+  Returns either:
+  * `{:ok, qr_code}` where `qr_code` is the QR Code orginally supplied to the function
+  * `{:error, reasons}` where `reasons` is a list of validation error reasons as atoms
+  """
   def validate_qr(qr) do
 
     qr_format_indicator = String.slice(qr, 0, 6)
@@ -33,6 +40,13 @@ defmodule Exemvi.QR.MP do
     {:error, reasons}
   end
 
+  @doc """
+  Parse QR Code into data objects
+
+  Returns either:
+  * `{:ok, objects}` where `objects` is a list of `Exemvi.MP.Object` structs
+  * `{:error, reasons}` where `reasons` is a list of error reasons as atoms
+  """
   def parse_to_objects(qr) do
     case parse_to_objects_rest(:root, qr, []) do
       {:ok, objects} -> {:ok, objects}
@@ -48,6 +62,13 @@ defmodule Exemvi.QR.MP do
     {:error, reasons}
   end
 
+  @doc """
+  Validate data objects
+
+  Returns either:
+  * `{:ok, objects}` where `objects` is the objects originally supplied to the function
+  * `{:error, reasons}` where `reasons` is a list of validation error reasons as atoms
+  """
   def validate_objects(objects) do
     reasons = validate_all_objects_rest(:root, objects, [])
     if Enum.count(reasons) == 0 do

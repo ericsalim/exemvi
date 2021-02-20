@@ -88,8 +88,7 @@ defmodule MPMTest do
   end
 
   test "qr does not start with payload format indicator" do
-    wrong_payload = @official_sample <> "01"
-
+    wrong_payload = "01" <> @official_sample
     {:error, reasons} = MP.validate_qr(wrong_payload)
     assert Enum.member?(reasons, Exemvi.Error.invalid_qr)
   end

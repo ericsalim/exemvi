@@ -1,5 +1,15 @@
 defmodule Exemvi.QR.MP.Object do
 
+  @moduledoc """
+  Merchant-Presented Mode data object
+
+  Properties:
+  * `:id` is a string of data object ID
+  * `:value` is a string of data object value. The value is nil if the data object is a template
+  * `:objects` is a list of data objects in the template. The value is nil if the data object is not a template
+
+  """
+
   defstruct [
     :id,
     :value,
