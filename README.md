@@ -23,42 +23,42 @@ end
 # Basic Usage
 
 1. Validating the whole QR Code:
-  ```elixir
-  qr_code = "qr_code_string"
-  result = Exemvi.QR.MP.validate_qr(qr_code)
-  ```
+   ```elixir
+   qr_code = "qr_code_string"
+   result = Exemvi.QR.MP.validate_qr(qr_code)
+   ```
 
-  The `result` is either:
-  * `{:ok, qr_code}` where `qr_code` is the QR Code orginally supplied to the function
-  * `{:error, reasons}` where `reasons` is a list of validation error reasons as atoms
+   The `result` is either:
+   - `{:ok, qr_code}` where `qr_code` is the QR Code orginally supplied to the function
+   - `{:error, reasons}` where `reasons` is a list of validation error reasons as atoms
 
 2. Parsing QR Code into data objects:
-  ```elixir
-  qr_code = "qr_code_string"
-  result = Exemvi.QR.MP.parse_to_objects(qr_code)
-  ```
+   ```elixir
+   qr_code = "qr_code_string"
+   result = Exemvi.QR.MP.parse_to_objects(qr_code)
+   ```
 
-  The `result` is either:
-  * `{:ok, objects}` where `objects` is a list of `Exemvi.MP.Object` structs
-  * `{:error, reasons}` where `reasons` is a list of parsing error reasons as atoms
+   The `result` is either:
+   - `{:ok, objects}` where `objects` is a list of `Exemvi.MP.Object` structs
+   - `{:error, reasons}` where `reasons` is a list of parsing error reasons as atoms
 
 3. Validating parsed data objects:
-  ```elixir
-  objects = [%Exemvi.QR.MP.Object{id: "00", value: "01"}, ...]
-  result = Exemvi.QR.MP.validate_objects(qr_code)
-  ```
+   ```elixir
+   objects = [%Exemvi.QR.MP.Object{id: "00", value: "01"}, ...]
+   result = Exemvi.QR.MP.validate_objects(qr_code)
+   ```
 
-  The `result` is either:
-  * `{:ok, objects}` where `objects` is the objects originally supplied to the function
-  * `{:error, reasons}` where `reasons` is a list of validation error reasons as atoms
+   The `result` is either:
+   - `{:ok, objects}` where `objects` is the objects originally supplied to the function
+   - `{:error, reasons}` where `reasons` is a list of validation error reasons as atoms
 
 4. All three functions above can be piped:
-  ```elixir
-  result = qr_code
-           |> Exemvi.QR.MP.validate_qr()
-           |> Exemvi.QR.MP.parse_to_objects()
-           |> Exemvi.QR.MP.validate_objects()
-  ```
+   ```elixir
+   result = qr_code
+            |> Exemvi.QR.MP.validate_qr()
+            |> Exemvi.QR.MP.parse_to_objects()
+            |> Exemvi.QR.MP.validate_objects()
+   ```
 
 All possible error reason atoms in this library are in `Exemvi.Error` module.
 
