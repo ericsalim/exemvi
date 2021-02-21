@@ -7,8 +7,12 @@ defmodule Exemvi.MixProject do
       version: "0.1.0",
       elixir: "~> 1.11",
       name: "Exemvi",
-      description: "A library that helps parsing and generating EMV QRCPS and QRIS",
-      package: package()
+      description: description(),
+      package: package(),
+      source_url: "https://github.com/eric.salim/exemvi",
+      docs: [
+        extras: ["README.md"]
+      ]
     ]
   end
 
@@ -16,12 +20,17 @@ defmodule Exemvi.MixProject do
     []
   end
 
+  defp description() do
+    "A library to work with EMV QR Code Specification for Payment Systems"
+  end
+
   defp package do
     [
-      %{
-        licenses: ["Apache 2"],
-        maintainers: ["Eric Salim"]
-      }
+      name: "exemvi",
+      files: ["lib", "mix.exs", "README*", "LICENSE*"],
+      licenses: ["Apache-2.0"],
+      maintainers: ["Eric Salim"],
+      links: %{"GitHub" => "https://github.com/ericsalim/exemvi"}
     ]
   end
 end
