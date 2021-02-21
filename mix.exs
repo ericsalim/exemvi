@@ -10,6 +10,7 @@ defmodule Exemvi.MixProject do
       description: description(),
       package: package(),
       source_url: "https://github.com/eric.salim/exemvi",
+      deps: deps(),
       docs: [
         extras: ["README.md"]
       ]
@@ -31,6 +32,12 @@ defmodule Exemvi.MixProject do
       licenses: ["Apache-2.0"],
       maintainers: ["Eric Salim"],
       links: %{"GitHub" => "https://github.com/ericsalim/exemvi"}
+    ]
+  end
+
+  defp deps do
+    [
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 end
