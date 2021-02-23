@@ -1,5 +1,7 @@
 defmodule Exemvi.Error do
 
+  @moduledoc false
+
   # Must be ordered alphabetically
 
   def invalid_value_length, do: :invalid_value_length

@@ -3,15 +3,15 @@ defmodule Exemvi.QR.MP do
   alias Exemvi.QR.MP.Object, as: MPO
 
   @moduledoc """
-  Core functions for Merchant-Presented Mode QR Code
+  This module contains core functions for Merchant-Presented Mode QR Code
   """
 
   @doc """
   Validate whole QR Code
 
   Returns either:
-  * `{:ok, qr_code}` where `qr_code` is the QR Code orginally supplied to the function
-  * `{:error, reasons}` where `reasons` is a list of validation error reasons as atoms
+  - `{:ok, qr_code}` where `qr_code` is the QR Code orginally supplied to the function
+  - `{:error, reasons}` where `reasons` is a list of validation error reasons as atoms
   """
   def validate_qr(qr) do
 
@@ -44,8 +44,8 @@ defmodule Exemvi.QR.MP do
   Parse QR Code into data objects
 
   Returns either:
-  * `{:ok, objects}` where `objects` is a list of `Exemvi.MP.Object` structs
-  * `{:error, reasons}` where `reasons` is a list of error reasons as atoms
+  - `{:ok, objects}` where `objects` is a list of `Exemvi.MP.Object` structs
+  - `{:error, reasons}` where `reasons` is a list of error reasons as atoms
   """
   def parse_to_objects(qr) do
     case parse_to_objects_rest(:root, qr, []) do
@@ -66,8 +66,8 @@ defmodule Exemvi.QR.MP do
   Validate data objects
 
   Returns either:
-  * `{:ok, objects}` where `objects` is the objects originally supplied to the function
-  * `{:error, reasons}` where `reasons` is a list of validation error reasons as atoms
+  - `{:ok, objects}` where `objects` is the objects originally supplied to the function
+  - `{:error, reasons}` where `reasons` is a list of validation error reasons as atoms
   """
   def validate_objects(objects) do
     reasons = validate_all_objects_rest(:root, objects, [])

@@ -4,9 +4,9 @@ defmodule Exemvi.QR.MP.Object do
   Merchant-Presented Mode data object
 
   Properties:
-  * `:id` is a string of data object ID
-  * `:value` is a string of data object value. The value is nil if the data object is a template
-  * `:objects` is a list of data objects in the template. The value is nil if the data object is not a template
+  - `:id` is a string of data object ID
+  - `:value` is a string of data object value. The value is `nil` if the data object is a template
+  - `:objects` is a list of data objects in the template. The value is `nil` if the data object is not a template
 
   """
 
@@ -691,6 +691,7 @@ defmodule Exemvi.QR.MP.Object do
     context_specific_data:      %{must: false, must_alias: nil, min_len: 1, max_len: 99, regex: nil, parent: nil, is_template: false},
   }
 
+  @doc false
   def id_atoms(:root) do
     @root_id_atoms
   end
@@ -715,12 +716,15 @@ defmodule Exemvi.QR.MP.Object do
     @id_80_to_99_id_atoms
   end
 
+  @doc false
+  @deprecated "Not used outside unit tests"
   def id_raw(template, id_atom) do
     id_atoms(template)
     |> Enum.find(fn {_, v} -> v == id_atom end)
     |> elem(0)
   end
 
+  @doc false
   def specs(:root) do
     @root_specs
   end

@@ -1,5 +1,9 @@
 defmodule Exemvi.CRC do
 
+  @moduledoc """
+  Helper module to calculate the checksum of a QR Code
+  """
+
   use Bitwise
 
   @polynomial_cache [
@@ -69,6 +73,11 @@ defmodule Exemvi.CRC do
     11923, 16050, 3793, 7920
   ]
 
+  @doc """
+  Calculate the checksum of a QR Code
+
+  Returns the checksum as a hexadecimal string
+  """
   def checksum_hex(input) do
     calculate(input, 0xFFFF)
     |> Integer.to_string(16)

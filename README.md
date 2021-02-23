@@ -8,7 +8,7 @@ At this moment, support for Consumer-Presented Mode (CPM) is not planned.
 
 The specifications of EMV QR Code can be found at https://www.emvco.com/emv-technologies/qrcodes/
 
-# Installation
+## Installation
 
 Add `exemvi` to your list of dependencies in `mix.exs`:
 
@@ -20,7 +20,7 @@ def deps do
 end
 ```
 
-# Basic Usage
+## Basic Usage
 
 1. Validating the whole QR Code:
    ```elixir
@@ -60,9 +60,7 @@ end
             |> Exemvi.QR.MP.validate_objects()
    ```
 
-All possible error reason atoms in this library are in `Exemvi.Error` module.
-
-# Example
+## Example
 
 Let's try parsing the official sample.
 
@@ -105,4 +103,25 @@ wrong_qr_code = "0002XX"
 {:error, reasons} = Exemvi.QR.MP.validate_qr(wrong_qr_code)
 ```
 
-The resulting error reason is `[:invalid_qr]`
+The resulting error reason is `[:invalid_qr]`. Note that the error is a list containing error atoms.
+
+## Data Object Names
+
+When represented as atoms, data object names in this library are formatted in snake case (lower case with underscores). For example `:payload_format_indicator`.
+
+### Error Values
+
+The data object naming convention is relevant when figuring out error reason atoms.
+
+Below are the possible types of failures when validating data objects:
+- Invalid data object value
+
+  The error atom is the snake case object name prefixed with `invalid_`. For example `:invalid_additional_consumer_data_request`
+
+- Missing mandatory data object
+
+  The error atom is the snake case object name prefixed with `missing_`. For example `:missing_country_code`
+
+- Orphaned data object
+
+  The error atom is the snake case object name prefixed with `orphaned_`. For example `:orphaned_value_of_convenience_fee_fixed`

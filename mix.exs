@@ -12,7 +12,8 @@ defmodule Exemvi.MixProject do
       source_url: "https://github.com/eric.salim/exemvi",
       deps: deps(),
       docs: [
-        extras: ["README.md"]
+        extras: ["README.md"],
+        main: "readme"
       ]
     ]
   end
