@@ -87,6 +87,18 @@ defmodule MPMTest do
     assert Enum.member?(reasons, Exemvi.Error.invalid_value_length)
   end
 
+  test "qr is too short" do
+    for qr <- ["", "123"] do
+      {:error, reasons} = MP.validate_qr(qr)
+      assert Enum.member?(reasons, Exemvi.Error.invalid_qr())
+    end
+  end
+
+  test "qr is blank" do
+    {:error, reasons} = MP.validate_qr("          ")
+    assert Enum.member?(reasons, Exemvi.Error.invalid_qr())
+  end
+
   test "qr does not start with payload format indicator" do
     wrong_payload = "01" <> @official_sample
     {:error, reasons} = MP.validate_qr(wrong_payload)
