@@ -13,13 +13,15 @@ defmodule MPMTest do
       objects: [
         %Exemvi.QR.MP.Object{id: "00", value: "D15600000000"},
         %Exemvi.QR.MP.Object{id: "05", value: "A93FO3230Q"}
-      ]},
+      ]
+    },
     %MPO{
       id: "31",
       objects: [
         %Exemvi.QR.MP.Object{id: "00", value: "D15600000001"},
         %Exemvi.QR.MP.Object{id: "03", value: "12345678"}
-      ]},
+      ]
+    },
     %MPO{id: "52", value: "4111"},
     %MPO{id: "58", value: "CN"},
     %MPO{id: "59", value: "BEST TRANSPORT"},
@@ -30,7 +32,8 @@ defmodule MPMTest do
         %Exemvi.QR.MP.Object{id: "00", value: "ZH"},
         %Exemvi.QR.MP.Object{id: "01", value: "最佳运输"},
         %Exemvi.QR.MP.Object{id: "02", value: "北京"}
-      ]},
+      ]
+    },
     %MPO{id: "54", value: "23.72"},
     %MPO{id: "53", value: "156"},
     %MPO{id: "55", value: "01"},
@@ -41,23 +44,42 @@ defmodule MPMTest do
         %MPO{id: "06", value: "***"},
         %MPO{id: "07", value: "A6008667"},
         %MPO{id: "09", value: "ME"}
-      ]},
+      ]
+    },
     %MPO{id: "91", value: "0016A011223344998877070812345678"},
     %MPO{id: "63", value: "A13A"}
   ]
 
+  defp assert_invalid_qr(qr) do
+    {:error, reasons} = MP.validate_qr(qr)
+    assert Enum.member?(reasons, Exemvi.Error.invalid_qr())
+  end
+
+  defp assert_invalid_object(data, [{type, reason}]) do
+    {:error, reasons} = MP.validate_objects(data)
+
+    expected_reason =
+      case type do
+        :invalid_value -> Exemvi.Error.invalid_object_value(reason)
+        :missing_id -> Exemvi.Error.missing_object_id(reason)
+        :orphaned -> Exemvi.Error.orphaned_object(reason)
+      end
+
+    assert Enum.member?(reasons, expected_reason)
+  end
+
   test "basic usage of parsing and validation is successful" do
-    {:ok, objects} = @official_sample
-                     |> MP.validate_qr()
-                     |> MP.parse_to_objects()
-                     |> MP.validate_objects()
+    {:ok, objects} =
+      @official_sample
+      |> MP.validate_qr()
+      |> MP.parse_to_objects()
+      |> MP.validate_objects()
 
     assert Enum.count(objects) > 0
   end
 
   test "official sample qr parsing is successful" do
-    with {:ok, objects} <- MP.parse_to_objects(@official_sample)
-    do
+    with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
       # Check only some fields
 
       pfi = Enum.at(objects, 0)
@@ -84,25 +106,22 @@ defmodule MPMTest do
     payload = "00A201"
     {result, reasons} = MP.parse_to_objects(payload)
     assert result == :error
-    assert Enum.member?(reasons, Exemvi.Error.invalid_value_length)
+    assert Enum.member?(reasons, Exemvi.Error.invalid_value_length())
   end
 
   test "qr is too short" do
-    for qr <- ["", "123"] do
-      {:error, reasons} = MP.validate_qr(qr)
-      assert Enum.member?(reasons, Exemvi.Error.invalid_qr())
+    for qr <- ["", "123", "          "] do
+      assert_invalid_qr(qr)
     end
   end
 
   test "qr is blank" do
-    {:error, reasons} = MP.validate_qr("          ")
-    assert Enum.member?(reasons, Exemvi.Error.invalid_qr())
+    assert_invalid_qr("          ")
   end
 
   test "qr does not start with payload format indicator" do
     wrong_payload = "01" <> @official_sample
-    {:error, reasons} = MP.validate_qr(wrong_payload)
-    assert Enum.member?(reasons, Exemvi.Error.invalid_qr)
+    assert_invalid_qr(wrong_payload)
   end
 
   test "qr checksum is invalid" do
@@ -111,8 +130,7 @@ defmodule MPMTest do
     wrong_checksum = "ABCD"
     wrong_payload = without_checksum <> wrong_checksum
 
-    {:error, reasons} = MP.validate_qr(wrong_payload)
-    assert Enum.member?(reasons, Exemvi.Error.invalid_qr)
+    assert_invalid_qr(wrong_payload)
   end
 
   test "official data object sample is valid" do
@@ -123,63 +141,61 @@ defmodule MPMTest do
     assert result == :ok
   end
 
-  test "payload format indicator is missing" do
-    test_data = []
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:payload_format_indicator))
+  ids = ~w(
+    country_code
+    merchant_category_code
+    merchant_city
+    merchant_name
+    payload_format_indicator
+    transaction_currency
+  )a
+
+  for id <- ids do
+    pretty_name = id |> Atom.to_string() |> String.replace("_", " ")
+
+    test pretty_name <> " is missing" do
+      assert_invalid_object([], missing_id: unquote(id))
+    end
   end
 
   test "payload format indicator is not 01" do
-    test_data = [%MPO{id: "00", value: "02"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:payload_format_indicator))
+    assert_invalid_object([%MPO{id: "00", value: "02"}], invalid_value: :payload_format_indicator)
   end
 
   test "point of initiation value is not 11 or 12" do
-    test_data = [%MPO{id: "01", value: "10"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:point_of_initiation_method))
-
-    test_data = [%MPO{id: "01", value: "13"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:point_of_initiation_method))
+    for value <- ["10", "13"] do
+      assert_invalid_object([%MPO{id: "01", value: value}],
+        invalid_value: :point_of_initiation_method
+      )
+    end
   end
 
   test "both merchant account information (MAI) and MAI template are missing" do
-    test_data = []
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:merchant_account_information))
+    assert_invalid_object([], missing_id: :merchant_account_information)
   end
 
   test "merchant account information (MAI) exists but MAI template is missing is valid" do
-    test_data = [%MPO{id: "02", value: "ABC" }]
+    test_data = [%MPO{id: "02", value: "ABC"}]
     {:error, reasons} = MP.validate_objects(test_data)
+
     assert not Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:merchant_account_information))
+             reasons,
+             Exemvi.Error.missing_object_id(:merchant_account_information)
+           )
   end
 
   test "merchant account information (MAI) template exists but MAI is missing is valid" do
-    test_data = [%MPO{id: "26", value: "ABC" }]
+    test_data = [%MPO{id: "26", value: "ABC"}]
     {:error, reasons} = MP.validate_objects(test_data)
+
     assert not Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:merchant_account_information))
+             reasons,
+             Exemvi.Error.missing_object_id(:merchant_account_information)
+           )
   end
 
   test "merchant account information template is parsed into objects" do
     with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
-
       object_29 = Enum.find(objects, fn x -> x.id == "29" end)
 
       assert object_29 != nil
@@ -207,232 +223,112 @@ defmodule MPMTest do
       payment_network_specific = object_31.objects |> Enum.at(1)
       assert payment_network_specific.id == "03"
       assert payment_network_specific.value == "12345678"
-
     else
       _ -> assert false, "Failed parsing merchant account information template"
     end
   end
 
   test "merchant account information template globally unique identifier is missing" do
-    test_data = [%MPO{id: "26", objects: [%MPO{id: "01", value: "ABC" }] }]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:globally_unique_identifier))
+    assert_invalid_object([%MPO{id: "26", objects: [%MPO{id: "01", value: "ABC"}]}],
+      missing_id: :globally_unique_identifier
+    )
   end
 
   test "merchant account information template globally unique identifier is longer than 32 chars" do
-    test_data = [%MPO{id: "26", objects: [%MPO{id: "00", value: String.duplicate("x", 33) }] }]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:globally_unique_identifier))
-  end
-
-  test "merchant category code is missing" do
-    test_data = []
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:merchant_category_code))
+    assert_invalid_object(
+      [%MPO{id: "26", objects: [%MPO{id: "00", value: String.duplicate("x", 33)}]}],
+      invalid_value: :globally_unique_identifier
+    )
   end
 
   test "merchant category code value is not 4 integer digits" do
-    test_data = [%MPO{id: "52", value: "12AB"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:merchant_category_code))
-
-    test_data = [%MPO{id: "52", value: "123"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:merchant_category_code))
-
-    test_data = [%MPO{id: "52", value: "12345"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:merchant_category_code))
-  end
-
-  test "transaction currency is missing" do
-    test_data = []
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:transaction_currency))
+    for value <- ["12AB", "123", "12345"] do
+      assert_invalid_object([%MPO{id: "52", value: value}],
+        invalid_value: :merchant_category_code
+      )
+    end
   end
 
   test "transaction currency value is not 3 integer digits" do
-    test_data = [%MPO{id: "53", value: "12AB"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:transaction_currency))
-
-    test_data = [%MPO{id: "53", value: "12"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:transaction_currency))
-
-    test_data = [%MPO{id: "53", value: "1234"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:transaction_currency))
+    for value <- ["12AB", "12", "1234"] do
+      assert_invalid_object([%MPO{id: "53", value: value}],
+        invalid_value: :transaction_currency
+      )
+    end
   end
 
   test "transaction amount value is longer than 13 decimal digits" do
-
-    test_data = [%MPO{id: "54", value: String.duplicate("1", 14)}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:transaction_amount))
-
-    test_data = [%MPO{id: "54", value: "123456789012.4"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:transaction_amount))
+    for value <- [String.duplicate("1", 14), "123456789012.4"] do
+      assert_invalid_object([%MPO{id: "54", value: value}],
+        invalid_value: :transaction_amount
+      )
+    end
   end
 
   test "convenience indicator is not 2 integer digits" do
-
-    test_data = [%MPO{id: "55", value: "1A"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:tip_or_convenience_indicator))
-
-    test_data = [%MPO{id: "55", value: "1"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:tip_or_convenience_indicator))
-
-    test_data = [%MPO{id: "55", value: "123"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:tip_or_convenience_indicator))
+    for value <- ["1A", "1", "123"] do
+      assert_invalid_object([%MPO{id: "55", value: value}],
+        invalid_value: :tip_or_convenience_indicator
+      )
+    end
   end
 
   test "convenience fee fixed is orphaned" do
-    test_data = [%MPO{id: "56", value: "1"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.orphaned_object(:value_of_convenience_fee_fixed))
+    assert_invalid_object([%MPO{id: "56", value: "1"}],
+      orphaned: :value_of_convenience_fee_fixed
+    )
   end
 
   test "convenience fee fixed is longer than 13 decimal digits" do
-
-    test_data = [%MPO{id: "56", value: String.duplicate("1", 14)}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:value_of_convenience_fee_fixed))
-
-    test_data = [%MPO{id: "56", value: "123456789012.4"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:value_of_convenience_fee_fixed))
+    for value <- [String.duplicate("1", 14), "123456789012.4"] do
+      assert_invalid_object([%MPO{id: "56", value: value}],
+        invalid_value: :value_of_convenience_fee_fixed
+      )
+    end
   end
 
   test "convenience fee percentage is orphaned" do
-    test_data = [%MPO{id: "57", value: "1"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.orphaned_object(:value_of_convenience_fee_percentage))
+    assert_invalid_object([%MPO{id: "57", value: "1"}],
+      orphaned: :value_of_convenience_fee_percentage
+    )
   end
 
   test "convenience fee percentage is longer than 5 decimal digits" do
-    test_data = [%MPO{id: "57", value: String.duplicate("1", 6)}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:value_of_convenience_fee_percentage))
-
-    test_data = [%MPO{id: "57", value: "1234.6"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:value_of_convenience_fee_percentage))
-  end
-
-  test "country code is missing" do
-    test_data = []
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:country_code))
+    for value <- [String.duplicate("1", 6), "1234.6"] do
+      assert_invalid_object([%MPO{id: "57", value: value}],
+        invalid_value: :value_of_convenience_fee_percentage
+      )
+    end
   end
 
   test "country code is not 2 chars" do
-    test_data = [%MPO{id: "58", value: "A"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:country_code))
-
-    test_data = [%MPO{id: "58", value: "ABC"}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:country_code))
-  end
-
-  test "merchant name is missing" do
-    test_data = []
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:merchant_name))
+    for value <- ["A", "ABC"] do
+      assert_invalid_object([%MPO{id: "58", value: value}],
+        invalid_value: :country_code
+      )
+    end
   end
 
   test "merchant name is longer than 25 chars" do
-    test_data = [%MPO{id: "59", value: String.duplicate("x", 26)}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:merchant_name))
-  end
-
-  test "merchant city is missing" do
-    test_data = []
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:merchant_city))
+    assert_invalid_object([%MPO{id: "59", value: String.duplicate("x", 26)}],
+      invalid_value: :merchant_name
+    )
   end
 
   test "merchant city is longer than 15 chars" do
-    test_data = [%MPO{id: "60", value: String.duplicate("x", 16)}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:merchant_city))
+    assert_invalid_object([%MPO{id: "60", value: String.duplicate("x", 16)}],
+      invalid_value: :merchant_city
+    )
   end
 
   test "postal code is longer than 10 chars" do
-    test_data = [%MPO{id: "61", value: String.duplicate("x", 11)}]
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:postal_code))
+    assert_invalid_object([%MPO{id: "61", value: String.duplicate("x", 11)}],
+      invalid_value: :postal_code
+    )
   end
 
   test "additional data template is parsed into objects" do
     with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
-
       id_62_raw = MPO.id_raw(:root, :additional_data_field_template)
       object_62 = Enum.find(objects, fn x -> x.id == id_62_raw end)
 
@@ -460,125 +356,47 @@ defmodule MPMTest do
     end
   end
 
-  test "additional data bill number is longer than 25 chars" do
-    code_62 = MPO.id_raw(:root, :additional_data_field_template)
-    code_01 = MPO.id_raw(:additional_data_field_template, :bill_number)
+  additional_data_attrs = ~w(
+    bill_number
+    customer_label
+    loyalty_number
+    mobile_number
+    purpose_of_transaction
+    reference_label
+    store_label
+    terminal_label
+  )a
 
-    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_01, value: String.duplicate("x", 26)}] }]
+  for attr <- additional_data_attrs do
+    pretty_name = attr |> Atom.to_string() |> String.replace("_", " ")
 
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:bill_number))
-  end
+    test "additional data " <> pretty_name <> " is longer than 25 chars" do
+      code_62 = MPO.id_raw(:root, :additional_data_field_template)
+      code = MPO.id_raw(:additional_data_field_template, unquote(attr))
 
-  test "additional data mobile number is longer than 25 chars" do
-    code_62 = MPO.id_raw(:root, :additional_data_field_template)
-    code_02 = MPO.id_raw(:additional_data_field_template, :mobile_number)
-
-    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_02, value: String.duplicate("x", 26) }] }]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:mobile_number))
-  end
-
-  test "additional data store label is longer than 25 chars" do
-    code_62 = MPO.id_raw(:root, :additional_data_field_template)
-    code_03 = MPO.id_raw(:additional_data_field_template, :store_label)
-
-    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_03, value: String.duplicate("x", 26) }] }]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:store_label))
-  end
-
-  test "additional data loyalty number is longer than 25 chars" do
-    code_62 = MPO.id_raw(:root, :additional_data_field_template)
-    code_04 = MPO.id_raw(:additional_data_field_template, :loyalty_number)
-
-    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_04, value: String.duplicate("x", 26) }] }]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:loyalty_number))
-  end
-
-  test "additional data reference label is longer than 25 chars" do
-    code_62 = MPO.id_raw(:root, :additional_data_field_template)
-    code_05 = MPO.id_raw(:additional_data_field_template, :reference_label)
-
-    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_05, value: String.duplicate("x", 26) }] }]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:reference_label))
-  end
-
-  test "additional data customer label is longer than 25 chars" do
-    code_62 = MPO.id_raw(:root, :additional_data_field_template)
-    code_06 = MPO.id_raw(:additional_data_field_template, :customer_label)
-
-    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_06, value: String.duplicate("x", 26) }] }]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:customer_label))
-  end
-
-  test "additional data terminal label is longer than 25 chars" do
-    code_62 = MPO.id_raw(:root, :additional_data_field_template)
-    code_07 = MPO.id_raw(:additional_data_field_template, :terminal_label)
-
-    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_07, value: String.duplicate("x", 26) }] }]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:terminal_label))
-  end
-
-  test "additional data purpose of transaction is longer than 25 chars" do
-    code_62 = MPO.id_raw(:root, :additional_data_field_template)
-    code_08 = MPO.id_raw(:additional_data_field_template, :purpose_of_transaction)
-
-    test_data = [%MPO{id: code_62, objects: [%MPO{id: code_08, value: String.duplicate("x", 26) }] }]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:purpose_of_transaction))
+      assert_invalid_object(
+        [%MPO{id: code_62, objects: [%MPO{id: code, value: String.duplicate("x", 26)}]}],
+        invalid_value: unquote(attr)
+      )
+    end
   end
 
   test "additional data consumer data request is invalid" do
     code_62 = MPO.id_raw(:root, :additional_data_field_template)
     code_09 = MPO.id_raw(:additional_data_field_template, :additional_consumer_data_request)
 
-    test_data = [
-      [%MPO{id: code_62, objects: [%MPO{id: code_09, value: "AAA" }] }],
-      [%MPO{id: code_62, objects: [%MPO{id: code_09, value: "XYZ" }] }],
-      [%MPO{id: code_62, objects: [%MPO{id: code_09, value: "AMEA"}] }]
-    ]
-
-    expected_error = Exemvi.Error.invalid_object_value(:additional_consumer_data_request)
-
-    test_data
-    |> Enum.map(fn x -> MP.validate_objects(x) end)
-    |> Enum.map(fn {:error, reasons} -> Enum.member?(reasons, expected_error) end)
-    |> Enum.each(fn x -> assert x end)
+    for value <- ["AAA", "XYZ", "AMEA"] do
+      assert_invalid_object(
+        [%MPO{id: code_62, objects: [%MPO{id: code_09, value: value}]}],
+        invalid_value: :additional_consumer_data_request
+      )
+    end
   end
 
   test "additional data payment system specific template is parsed into object" do
     test_data = "623050260015org.example.www0103ABC"
 
     with {:ok, objects} <- MP.parse_to_objects(test_data) do
-
       object_62 = Enum.find(objects, fn x -> x.id == "62" end)
 
       assert object_62 != nil
@@ -602,147 +420,130 @@ defmodule MPMTest do
   end
 
   test "additional data payment system specific template globally unique identifier is missing" do
-    test_data = [
-      %MPO{
-        id: "62",
-        objects: [
-          %MPO{
-            id: "50",
-            objects: [
-              %MPO{
-                id: "01",
-                value: "ABC"
-              }
-            ]
-          }
-        ]
-      }
-    ]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:globally_unique_identifier))
+    assert_invalid_object(
+      [
+        %MPO{
+          id: "62",
+          objects: [
+            %MPO{
+              id: "50",
+              objects: [
+                %MPO{
+                  id: "01",
+                  value: "ABC"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      missing_id: :globally_unique_identifier
+    )
   end
 
   test "additional data payment system specific template globally unique identifier is longer than 32 chars" do
-    test_data = [
-      %MPO{
-        id: "62",
-        objects: [
-          %MPO{
-            id: "50",
-            objects: [
-              %MPO{
-                id: "00",
-                value: String.duplicate("x", 33)
-              }
-            ]
-          }
-        ]
-      }
-    ]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:globally_unique_identifier))
+    assert_invalid_object(
+      [
+        %MPO{
+          id: "62",
+          objects: [
+            %MPO{
+              id: "50",
+              objects: [
+                %MPO{
+                  id: "00",
+                  value: String.duplicate("x", 33)
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      invalid_value: :globally_unique_identifier
+    )
   end
 
-  test "merchant information language template is parsed into objects" do
-    with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
+  describe "merchant information language template" do
+    setup do
+      code_64 = MPO.id_raw(:root, :merchant_information_language_template)
 
-      id_64_raw = MPO.id_raw(:root, :merchant_information_language_template)
-      object_64 = Enum.find(objects, fn x -> x.id == id_64_raw end)
+      builder = fn key, value ->
+        key =
+          cond do
+            is_binary(key) -> key
+            is_atom(key) -> MPO.id_raw(:merchant_information_language_template, key)
+          end
 
-      assert object_64 != nil
-      assert object_64.objects != nil
-      assert Enum.count(object_64.objects) == 3
+        [%MPO{id: code_64, objects: [%MPO{id: key, value: value}]}]
+      end
 
-      language_preference = object_64.objects |> Enum.at(0)
-      assert language_preference.id == "00"
-      assert language_preference.value == "ZH"
-
-      merchant_name = object_64.objects |> Enum.at(1)
-      assert merchant_name.id == "01"
-      assert merchant_name.value == "最佳运输"
-
-      merchant_city = object_64.objects |> Enum.at(2)
-      assert merchant_city.id == "02"
-      assert merchant_city.value == "北京"
-    else
-      _ -> assert false, "Failed parsing merchant information language template"
+      %{builder: builder}
     end
-  end
 
-  test "merchant information language template language preference is missing" do
-    code_64 = MPO.id_raw(:root, :merchant_information_language_template)
+    test "is parsed into objects" do
+      with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
+        id_64_raw = MPO.id_raw(:root, :merchant_information_language_template)
+        object_64 = Enum.find(objects, fn x -> x.id == id_64_raw end)
 
-    test_data = [%MPO{id: code_64, objects: [%MPO{id: "01", value: "ABC" }]}]
+        assert object_64 != nil
+        assert object_64.objects != nil
+        assert Enum.count(object_64.objects) == 3
 
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:language_preference))
-  end
+        language_preference = object_64.objects |> Enum.at(0)
+        assert language_preference.id == "00"
+        assert language_preference.value == "ZH"
 
-  test "merchant information language template language preference is invalid" do
-    code_64 = MPO.id_raw(:root, :merchant_information_language_template)
-    code_00 = MPO.id_raw(:merchant_information_language_template, :language_preference)
+        merchant_name = object_64.objects |> Enum.at(1)
+        assert merchant_name.id == "01"
+        assert merchant_name.value == "最佳运输"
 
-    test_data = [
-      [%MPO{id: code_64, objects: [%MPO{id: code_00, value: "A"   }] }],
-      [%MPO{id: code_64, objects: [%MPO{id: code_00, value: "ABC" }] }]
-    ]
+        merchant_city = object_64.objects |> Enum.at(2)
+        assert merchant_city.id == "02"
+        assert merchant_city.value == "北京"
+      else
+        _ -> assert false, "Failed parsing merchant information language template"
+      end
+    end
 
-    expected_error = Exemvi.Error.invalid_object_value(:language_preference)
+    test "language preference is missing", %{builder: builder} do
+      assert_invalid_object(builder.("01", "ABC"), missing_id: :language_preference)
+    end
 
-    test_data
-    |> Enum.map(fn x -> MP.validate_objects(x) end)
-    |> Enum.map(fn {:error, reasons} -> Enum.member?(reasons, expected_error) end)
-    |> Enum.each(fn x -> assert x end)
-  end
+    test "language preference is invalid", %{builder: builder} do
+      for value <- ["A", "ABC"] do
+        assert_invalid_object(
+          builder.(:language_preference, value),
+          invalid_value: :language_preference
+        )
+      end
+    end
 
-  test "merchant information language template merchant name alternate language is missing" do
-    code_64 = MPO.id_raw(:root, :merchant_information_language_template)
+    test "merchant name alternate language is missing", %{builder: builder} do
+      assert_invalid_object(
+        builder.("00", "EN"),
+        missing_id: :merchant_name_alternate_language
+      )
+    end
 
-    test_data = [%MPO{id: code_64, objects: [%MPO{id: "00", value: "EN" }]}]
+    test "merchant name alternate language is longer than 25 chars", %{builder: builder} do
+      assert_invalid_object(
+        builder.(:merchant_name_alternate_language, String.duplicate("x", 26)),
+        invalid_value: :merchant_name_alternate_language
+      )
+    end
 
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:merchant_name_alternate_language))
-  end
-
-  test "merchant information language template merchant name alternate language is longer than 25 chars" do
-    code_64 = MPO.id_raw(:root, :merchant_information_language_template)
-    code_01 = MPO.id_raw(:merchant_information_language_template, :merchant_name_alternate_language)
-
-    test_data = [%MPO{id: code_64, objects: [%MPO{id: code_01, value: String.duplicate("x", 26) }]}]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:merchant_name_alternate_language))
-  end
-
-  test "merchant information language template merchant city alternate language is longer than 15 chars" do
-    code_64 = MPO.id_raw(:root, :merchant_information_language_template)
-    code_02 = MPO.id_raw(:merchant_information_language_template, :merchant_city_alternate_language)
-
-    test_data = [%MPO{id: code_64, objects: [%MPO{id: code_02, value: String.duplicate("x", 16) }]}]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:merchant_city_alternate_language))
+    test "merchant city alternate language is longer than 15 chars", %{builder: builder} do
+      assert_invalid_object(
+        builder.(:merchant_city_alternate_language, String.duplicate("x", 16)),
+        invalid_value: :merchant_city_alternate_language
+      )
+    end
   end
 
   test "unreserved template is parsed into objects" do
     test_data = "80260015org.example.www0103ABC"
 
     with {:ok, objects} <- MP.parse_to_objects(test_data) do
-
       object_80 = Enum.find(objects, fn x -> x.id == "80" end)
 
       assert object_80 != nil
@@ -762,40 +563,36 @@ defmodule MPMTest do
   end
 
   test "unreserved template globally unique identifier is missing" do
-    test_data = [
-      %MPO{
-        id: "80",
-        objects: [
-          %MPO{
-            id: "01",
-            value: "ABC"
-          }
-        ]
-      }
-    ]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.missing_object_id(:globally_unique_identifier))
+    assert_invalid_object(
+      [
+        %MPO{
+          id: "80",
+          objects: [
+            %MPO{
+              id: "01",
+              value: "ABC"
+            }
+          ]
+        }
+      ],
+      missing_id: :globally_unique_identifier
+    )
   end
 
   test "unreserved template globally unique identifier is longer than 32 chars" do
-    test_data = [
-      %MPO{
-        id: "80",
-        objects: [
-          %MPO{
-            id: "00",
-            value: String.duplicate("x", 33)
-          }
-        ]
-      }
-    ]
-
-    {:error, reasons} = MP.validate_objects(test_data)
-    assert Enum.member?(
-      reasons,
-      Exemvi.Error.invalid_object_value(:globally_unique_identifier))
+    assert_invalid_object(
+      [
+        %MPO{
+          id: "80",
+          objects: [
+            %MPO{
+              id: "00",
+              value: String.duplicate("x", 33)
+            }
+          ]
+        }
+      ],
+      invalid_value: :globally_unique_identifier
+    )
   end
 end
