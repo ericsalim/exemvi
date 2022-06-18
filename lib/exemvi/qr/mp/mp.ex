@@ -13,22 +13,38 @@ defmodule Exemvi.QR.MP do
   - `{:ok, qr_code}` where `qr_code` is the QR Code orginally supplied to the function
   - `{:error, reasons}` where `reasons` is a list of validation error reasons as atoms
   """
-  def validate_qr(qr) do
 
-    qr_format_indicator = String.slice(qr, 0, 6)
+  def validate_qr(qr) when is_binary(qr) do
+    with :ok <- validate_length(qr),
+         :ok <- validate_format(qr),
+         :ok <- validate_checksum(qr) do
+      {:ok, qr}
+    else
+      _ -> {:error, [Exemvi.Error.invalid_qr()]}
+    end
+  end
 
+  def validate_qr(_), do: {:error, [Exemvi.Error.invalid_qr()]}
+
+  defp validate_length(qr) do
+    case String.length(qr) do
+      l when l >= 4 -> :ok
+      _ -> :qr_code_too_short
+    end
+  end
+
+  defp validate_format("000201" <> _), do: :ok
+  defp validate_format(_), do: :invalid_format
+
+  defp validate_checksum(qr) do
     qr_length = String.length(qr)
     without_checksum = String.slice(qr, 0, qr_length - 4)
     qr_checksum = String.slice(qr, qr_length - 4, 4)
     expected_checksum = Exemvi.CRC.checksum_hex(without_checksum)
 
-    all_ok = qr_format_indicator == "000201"
-    all_ok = all_ok and qr_checksum == expected_checksum
-
-    if all_ok do
-      {:ok, qr}
-    else
-      {:error, [Exemvi.Error.invalid_qr]}
+    case qr_checksum == expected_checksum do
+      true -> :ok
+      _ -> :checksum_failed
     end
   end
 
