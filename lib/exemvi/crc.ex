@@ -85,11 +85,6 @@ defmodule Exemvi.CRC do
   end
 
   defp calculate(input, crc) do
-    #for ib in input_bytes:
-    #  poly_idx = (crc_result >> 8) ^ ib
-    #  crc_result = polytable[poly_idx] ^ (crc_result << 8)
-    #  crc_result = int(hex(crc_result & 0xffff), 16)
-
     <<head_byte, rest_bytes::binary>> = input
 
     polynomial_idx = bxor(crc >>> 8, head_byte)
