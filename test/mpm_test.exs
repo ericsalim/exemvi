@@ -50,6 +50,12 @@ defmodule MPMTest do
     %MPO{id: "63", value: "A13A"}
   ]
 
+  defp id_raw(template, id_atom) do
+    MPO.id_atoms(template)
+    |> Enum.find(fn {_, v} -> v == id_atom end)
+    |> elem(0)
+  end
+
   defp assert_invalid_qr(qr) do
     {:error, reasons} = MP.validate_qr(qr)
     assert Enum.member?(reasons, Exemvi.Error.invalid_qr())
@@ -329,7 +335,7 @@ defmodule MPMTest do
 
   test "additional data template is parsed into objects" do
     with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
-      id_62_raw = MPO.id_raw(:root, :additional_data_field_template)
+      id_62_raw = id_raw(:root, :additional_data_field_template)
       object_62 = Enum.find(objects, fn x -> x.id == id_62_raw end)
 
       assert object_62 != nil
@@ -371,8 +377,8 @@ defmodule MPMTest do
     pretty_name = attr |> Atom.to_string() |> String.replace("_", " ")
 
     test "additional data " <> pretty_name <> " is longer than 25 chars" do
-      code_62 = MPO.id_raw(:root, :additional_data_field_template)
-      code = MPO.id_raw(:additional_data_field_template, unquote(attr))
+      code_62 = id_raw(:root, :additional_data_field_template)
+      code = id_raw(:additional_data_field_template, unquote(attr))
 
       assert_invalid_object(
         [%MPO{id: code_62, objects: [%MPO{id: code, value: String.duplicate("x", 26)}]}],
@@ -382,8 +388,8 @@ defmodule MPMTest do
   end
 
   test "additional data consumer data request is invalid" do
-    code_62 = MPO.id_raw(:root, :additional_data_field_template)
-    code_09 = MPO.id_raw(:additional_data_field_template, :additional_consumer_data_request)
+    code_62 = id_raw(:root, :additional_data_field_template)
+    code_09 = id_raw(:additional_data_field_template, :additional_consumer_data_request)
 
     for value <- ["AAA", "XYZ", "AMEA"] do
       assert_invalid_object(
@@ -465,13 +471,13 @@ defmodule MPMTest do
 
   describe "merchant information language template" do
     setup do
-      code_64 = MPO.id_raw(:root, :merchant_information_language_template)
+      code_64 = id_raw(:root, :merchant_information_language_template)
 
       builder = fn key, value ->
         key =
           cond do
             is_binary(key) -> key
-            is_atom(key) -> MPO.id_raw(:merchant_information_language_template, key)
+            is_atom(key) -> id_raw(:merchant_information_language_template, key)
           end
 
         [%MPO{id: code_64, objects: [%MPO{id: key, value: value}]}]
@@ -482,7 +488,7 @@ defmodule MPMTest do
 
     test "is parsed into objects" do
       with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
-        id_64_raw = MPO.id_raw(:root, :merchant_information_language_template)
+        id_64_raw = id_raw(:root, :merchant_information_language_template)
         object_64 = Enum.find(objects, fn x -> x.id == id_64_raw end)
 
         assert object_64 != nil
