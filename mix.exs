@@ -9,7 +9,7 @@ defmodule Exemvi.MixProject do
       name: "Exemvi",
       description: description(),
       package: package(),
-      source_url: "https://github.com/eric.salim/exemvi",
+      source_url: "https://github.com/ericsalim/exemvi",
       deps: deps(),
       docs: [
         extras: ["README.md"],
