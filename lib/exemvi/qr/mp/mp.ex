@@ -15,8 +15,7 @@ defmodule Exemvi.QR.MP do
   """
 
   def validate_qr(qr) when is_binary(qr) do
-    with :ok <- validate_length(qr),
-         :ok <- validate_format(qr),
+    with :ok <- validate_format(qr),
          :ok <- validate_checksum(qr) do
       {:ok, qr}
     else
@@ -25,13 +24,6 @@ defmodule Exemvi.QR.MP do
   end
 
   def validate_qr(_), do: {:error, [Exemvi.Error.invalid_qr()]}
-
-  defp validate_length(qr) do
-    case String.length(qr) do
-      l when l >= 4 -> :ok
-      _ -> :qr_code_too_short
-    end
-  end
 
   defp validate_format("000201" <> _), do: :ok
   defp validate_format(_), do: :invalid_format
