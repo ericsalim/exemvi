@@ -4,7 +4,7 @@ defmodule Exemvi.CRC do
   Helper module to calculate the checksum of a QR Code
   """
 
-  use Bitwise
+  import Bitwise
 
   @polynomial_cache [
     0, 4129, 8258, 12387,
