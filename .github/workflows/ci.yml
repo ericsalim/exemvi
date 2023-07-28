@@ -8,22 +8,31 @@ on:
 jobs:
   build:
 
-    name: Build and test
+    name: Test (${{matrix.elixir}}/${{matrix.otp}})
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        otp: [24.x, 25.x, 26.x]
+        elixir: [1.13.x, 1.14.x, 1.15.x]
+        exclude:
+          - otp: 26.x
+            elixir: 1.13.x
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Elixir
-        uses: erlef/setup-beam@v1
+      - uses: erlef/setup-beam@v1
         with:
-          otp-version: '24.0'
-          elixir-version: '1.13.0'
-      - name: Restore dependencies cache
-        uses: actions/cache@v2
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - uses: actions/cache@v3
         with:
-          path: deps
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ runner.os }}-mix-
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{matrix.otp}}-${{matrix.elixir}}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{matrix.otp}}-${{matrix.elixir}}-
       - name: Install dependencies
         run: mix deps.get
       - name: Run tests
