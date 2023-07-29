@@ -4,7 +4,7 @@ defmodule Exemvi.MixProject do
   def project do
     [
       app: :exemvi,
-      version: "0.1.2",
+      version: "0.2.1",
       elixir: "~> 1.13",
       name: "Exemvi",
       description: description(),
