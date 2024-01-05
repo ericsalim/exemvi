@@ -111,7 +111,7 @@ defmodule Exemvi.QR.MP do
 
       true ->
         value = String.slice(qr_rest, 4, value_length)
-        qr_rest_next = String.slice(qr_rest, (4 + value_length)..-1)
+        qr_rest_next = String.slice(qr_rest, (4 + value_length)..-1//1)
 
         is_template = MPO.specs(template)[id_atom][:is_template]
 
