@@ -98,7 +98,7 @@ defmodule Exemvi.QR.MP do
 
     value_length =
       case Integer.parse(value_length_raw) do
-        {i, ""} -> i
+        {i, ""} when i > 0 -> i
         _ -> 0
       end
 
