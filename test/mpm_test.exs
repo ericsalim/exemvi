@@ -602,8 +602,8 @@ defmodule MPMTest do
     )
   end
 
-  test "does not crash on uuid" do
+  test "does not crash on negative length" do
     {:error, [:invalid_value_length]} =
-      MP.parse_to_objects("36126243-615d-4033-86b6-32d82bace560")
+      MP.parse_to_objects("33-86b6-32d82bace560")
   end
 end
