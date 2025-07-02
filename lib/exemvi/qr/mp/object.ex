@@ -118,179 +118,181 @@ defmodule Exemvi.QR.MP.Object do
     "99" => :unreserved_template
   }
 
-  @root_specs %{
-    payload_format_indicator: %{
-      must: true,
-      must_alias: nil,
-      min_len: 2,
-      max_len: 2,
-      regex: ~r/(^01$)/,
-      parent: nil,
-      is_template: false
-    },
-    point_of_initiation_method: %{
-      must: false,
-      must_alias: nil,
-      min_len: 2,
-      max_len: 2,
-      regex: ~r/(^11$)|(^12$)/,
-      parent: nil,
-      is_template: false
-    },
-    merchant_account_information: %{
-      must: true,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 99,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    merchant_account_information_template: %{
-      must: true,
-      must_alias: :merchant_account_information,
-      min_len: 1,
-      max_len: 99,
-      regex: nil,
-      parent: nil,
-      is_template: true
-    },
-    merchant_category_code: %{
-      must: true,
-      must_alias: nil,
-      min_len: 4,
-      max_len: 4,
-      regex: ~r/^\d+$/,
-      parent: nil,
-      is_template: false
-    },
-    transaction_currency: %{
-      must: true,
-      must_alias: nil,
-      min_len: 3,
-      max_len: 3,
-      regex: ~r/^\d+$/,
-      parent: nil,
-      is_template: false
-    },
-    transaction_amount: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 13,
-      regex: ~r/(^\d+\.\d+$)|(^\d+$)/,
-      parent: nil,
-      is_template: false
-    },
-    tip_or_convenience_indicator: %{
-      must: false,
-      must_alias: nil,
-      min_len: 2,
-      max_len: 2,
-      regex: ~r/^\d+$/,
-      parent: nil,
-      is_template: false
-    },
-    value_of_convenience_fee_fixed: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 13,
-      regex: ~r/(^\d+\.\d+$)|(^\d+$)/,
-      parent: :tip_or_convenience_indicator,
-      is_template: false
-    },
-    value_of_convenience_fee_percentage: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 5,
-      regex: ~r/(^\d+\.\d+$)|(^\d+$)/,
-      parent: :tip_or_convenience_indicator,
-      is_template: false
-    },
-    country_code: %{
-      must: true,
-      must_alias: nil,
-      min_len: 2,
-      max_len: 2,
-      regex: ~r/^[a-zA-Z]{2}$/,
-      parent: nil,
-      is_template: false
-    },
-    merchant_name: %{
-      must: true,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 25,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    merchant_city: %{
-      must: true,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 15,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    postal_code: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 10,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    additional_data_field_template: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 99,
-      regex: nil,
-      parent: nil,
-      is_template: true
-    },
-    crc: %{
-      must: true,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 4,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    merchant_information_language_template: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 99,
-      regex: nil,
-      parent: nil,
-      is_template: true
-    },
-    rfu_for_emvco: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 99,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    unreserved_template: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 99,
-      regex: nil,
-      parent: nil,
-      is_template: true
+  defp root_specs() do
+    %{
+      payload_format_indicator: %{
+        must: true,
+        must_alias: nil,
+        min_len: 2,
+        max_len: 2,
+        regex: ~r/(^01$)/,
+        parent: nil,
+        is_template: false
+      },
+      point_of_initiation_method: %{
+        must: false,
+        must_alias: nil,
+        min_len: 2,
+        max_len: 2,
+        regex: ~r/(^11$)|(^12$)/,
+        parent: nil,
+        is_template: false
+      },
+      merchant_account_information: %{
+        must: true,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 99,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      merchant_account_information_template: %{
+        must: true,
+        must_alias: :merchant_account_information,
+        min_len: 1,
+        max_len: 99,
+        regex: nil,
+        parent: nil,
+        is_template: true
+      },
+      merchant_category_code: %{
+        must: true,
+        must_alias: nil,
+        min_len: 4,
+        max_len: 4,
+        regex: ~r/^\d+$/,
+        parent: nil,
+        is_template: false
+      },
+      transaction_currency: %{
+        must: true,
+        must_alias: nil,
+        min_len: 3,
+        max_len: 3,
+        regex: ~r/^\d+$/,
+        parent: nil,
+        is_template: false
+      },
+      transaction_amount: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 13,
+        regex: ~r/(^\d+\.\d+$)|(^\d+$)/,
+        parent: nil,
+        is_template: false
+      },
+      tip_or_convenience_indicator: %{
+        must: false,
+        must_alias: nil,
+        min_len: 2,
+        max_len: 2,
+        regex: ~r/^\d+$/,
+        parent: nil,
+        is_template: false
+      },
+      value_of_convenience_fee_fixed: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 13,
+        regex: ~r/(^\d+\.\d+$)|(^\d+$)/,
+        parent: :tip_or_convenience_indicator,
+        is_template: false
+      },
+      value_of_convenience_fee_percentage: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 5,
+        regex: ~r/(^\d+\.\d+$)|(^\d+$)/,
+        parent: :tip_or_convenience_indicator,
+        is_template: false
+      },
+      country_code: %{
+        must: true,
+        must_alias: nil,
+        min_len: 2,
+        max_len: 2,
+        regex: ~r/^[a-zA-Z]{2}$/,
+        parent: nil,
+        is_template: false
+      },
+      merchant_name: %{
+        must: true,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 25,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      merchant_city: %{
+        must: true,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 15,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      postal_code: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 10,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      additional_data_field_template: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 99,
+        regex: nil,
+        parent: nil,
+        is_template: true
+      },
+      crc: %{
+        must: true,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 4,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      merchant_information_language_template: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 99,
+        regex: nil,
+        parent: nil,
+        is_template: true
+      },
+      rfu_for_emvco: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 99,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      unreserved_template: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 99,
+        regex: nil,
+        parent: nil,
+        is_template: true
+      }
     }
-  }
+  end
 
   @id_26_to_51_id_atoms %{
     "00" => :globally_unique_identifier,
@@ -518,108 +520,110 @@ defmodule Exemvi.QR.MP.Object do
     "99" => :payment_system_specific_template
   }
 
-  @id_62_specs %{
-    bill_number: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 25,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    mobile_number: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 25,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    store_label: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 25,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    loyalty_number: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 25,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    reference_label: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 25,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    customer_label: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 25,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    terminal_label: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 25,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    purpose_of_transaction: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 25,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    additional_consumer_data_request: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 3,
-      regex:
-        ~r/(^A$)|(^M$)|(^E$)|(^AM$)|(^AE$)|(^MA$)|(^ME$)|(^EA$)|(EM$)|(^AME$)|(^AEM$)|(^MAE$)|(^MEA$)|(^EAM$)|(^EMA$)/,
-      parent: nil,
-      is_template: false
-    },
-    rfu_for_emvco: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 99,
-      regex: nil,
-      parent: nil,
-      is_template: false
-    },
-    payment_system_specific_template: %{
-      must: false,
-      must_alias: nil,
-      min_len: 1,
-      max_len: 99,
-      regex: nil,
-      parent: nil,
-      is_template: true
+  defp id_62_specs() do
+    %{
+      bill_number: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 25,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      mobile_number: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 25,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      store_label: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 25,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      loyalty_number: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 25,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      reference_label: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 25,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      customer_label: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 25,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      terminal_label: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 25,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      purpose_of_transaction: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 25,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      additional_consumer_data_request: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 3,
+        regex:
+          ~r/(^A$)|(^M$)|(^E$)|(^AM$)|(^AE$)|(^MA$)|(^ME$)|(^EA$)|(EM$)|(^AME$)|(^AEM$)|(^MAE$)|(^MEA$)|(^EAM$)|(^EMA$)/,
+        parent: nil,
+        is_template: false
+      },
+      rfu_for_emvco: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 99,
+        regex: nil,
+        parent: nil,
+        is_template: false
+      },
+      payment_system_specific_template: %{
+        must: false,
+        must_alias: nil,
+        min_len: 1,
+        max_len: 99,
+        regex: nil,
+        parent: nil,
+        is_template: true
+      }
     }
-  }
+  end
 
   @id_62_01_to_99_atoms %{
     "00" => :globally_unique_identifier,
@@ -1038,7 +1042,7 @@ defmodule Exemvi.QR.MP.Object do
 
   @doc false
   def specs(:root) do
-    @root_specs
+    root_specs()
   end
 
   def specs(:merchant_account_information_template) do
@@ -1046,7 +1050,7 @@ defmodule Exemvi.QR.MP.Object do
   end
 
   def specs(:additional_data_field_template) do
-    @id_62_specs
+    id_62_specs()
   end
 
   def specs(:payment_system_specific_template) do
