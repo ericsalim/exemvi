@@ -4,51 +4,56 @@ defmodule MPMTest do
   alias Exemvi.QR.MP, as: MP
   alias Exemvi.QR.MP.Object, as: MPO
 
-  @official_sample "00020101021229300012D156000000000510A93FO3230Q31280012D15600000001030812345678520441115802CN5914BEST TRANSPORT6007BEIJING64200002ZH0104最佳运输0202北京540523.7253031565502016233030412340603***0708A60086670902ME91320016A0112233449988770708123456786304A13A"
-  @official_objects [
-    %MPO{id: "00", value: "01"},
-    %MPO{id: "01", value: "12"},
-    %MPO{
-      id: "29",
-      objects: [
-        %Exemvi.QR.MP.Object{id: "00", value: "D15600000000"},
-        %Exemvi.QR.MP.Object{id: "05", value: "A93FO3230Q"}
-      ]
-    },
-    %MPO{
-      id: "31",
-      objects: [
-        %Exemvi.QR.MP.Object{id: "00", value: "D15600000001"},
-        %Exemvi.QR.MP.Object{id: "03", value: "12345678"}
-      ]
-    },
-    %MPO{id: "52", value: "4111"},
-    %MPO{id: "58", value: "CN"},
-    %MPO{id: "59", value: "BEST TRANSPORT"},
-    %MPO{id: "60", value: "BEIJING"},
-    %MPO{
-      id: "64",
-      objects: [
-        %Exemvi.QR.MP.Object{id: "00", value: "ZH"},
-        %Exemvi.QR.MP.Object{id: "01", value: "最佳运输"},
-        %Exemvi.QR.MP.Object{id: "02", value: "北京"}
-      ]
-    },
-    %MPO{id: "54", value: "23.72"},
-    %MPO{id: "53", value: "156"},
-    %MPO{id: "55", value: "01"},
-    %MPO{
-      id: "62",
-      objects: [
-        %MPO{id: "03", value: "1234"},
-        %MPO{id: "06", value: "***"},
-        %MPO{id: "07", value: "A6008667"},
-        %MPO{id: "09", value: "ME"}
-      ]
-    },
-    %MPO{id: "91", value: "0016A011223344998877070812345678"},
-    %MPO{id: "63", value: "A13A"}
-  ]
+  defp official_sample() do
+    "00020101021229300012D156000000000510A93FO3230Q31280012D15600000001030812345678520441115802CN5914BEST TRANSPORT6007BEIJING64200002ZH0104最佳运输0202北京540523.7253031565502016233030412340603***0708A60086670902ME91320016A0112233449988770708123456786304A13A"
+  end
+
+  defp official_objects() do
+    [
+      %MPO{id: "00", value: "01"},
+      %MPO{id: "01", value: "12"},
+      %MPO{
+        id: "29",
+        objects: [
+          %Exemvi.QR.MP.Object{id: "00", value: "D15600000000"},
+          %Exemvi.QR.MP.Object{id: "05", value: "A93FO3230Q"}
+        ]
+      },
+      %MPO{
+        id: "31",
+        objects: [
+          %Exemvi.QR.MP.Object{id: "00", value: "D15600000001"},
+          %Exemvi.QR.MP.Object{id: "03", value: "12345678"}
+        ]
+      },
+      %MPO{id: "52", value: "4111"},
+      %MPO{id: "58", value: "CN"},
+      %MPO{id: "59", value: "BEST TRANSPORT"},
+      %MPO{id: "60", value: "BEIJING"},
+      %MPO{
+        id: "64",
+        objects: [
+          %Exemvi.QR.MP.Object{id: "00", value: "ZH"},
+          %Exemvi.QR.MP.Object{id: "01", value: "最佳运输"},
+          %Exemvi.QR.MP.Object{id: "02", value: "北京"}
+        ]
+      },
+      %MPO{id: "54", value: "23.72"},
+      %MPO{id: "53", value: "156"},
+      %MPO{id: "55", value: "01"},
+      %MPO{
+        id: "62",
+        objects: [
+          %MPO{id: "03", value: "1234"},
+          %MPO{id: "06", value: "***"},
+          %MPO{id: "07", value: "A6008667"},
+          %MPO{id: "09", value: "ME"}
+        ]
+      },
+      %MPO{id: "91", value: "0016A011223344998877070812345678"},
+      %MPO{id: "63", value: "A13A"}
+    ]
+  end
 
   defp id_raw(template, id_atom) do
     MPO.id_atoms(template)
@@ -76,7 +81,7 @@ defmodule MPMTest do
 
   test "basic usage of parsing and validation is successful" do
     {:ok, objects} =
-      @official_sample
+      official_sample()
       |> MP.validate_qr()
       |> MP.parse_to_objects()
       |> MP.validate_objects()
@@ -85,7 +90,7 @@ defmodule MPMTest do
   end
 
   test "official sample qr parsing is successful" do
-    with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
+    with {:ok, objects} <- MP.parse_to_objects(official_sample()) do
       # Check only some fields
 
       pfi = Enum.at(objects, 0)
@@ -126,13 +131,13 @@ defmodule MPMTest do
   end
 
   test "qr does not start with payload format indicator" do
-    wrong_payload = "01" <> @official_sample
+    wrong_payload = "01" <> official_sample()
     assert_invalid_qr(wrong_payload)
   end
 
   test "qr checksum is invalid" do
-    start_of_checksum = String.length(@official_sample) - 4
-    without_checksum = String.slice(@official_sample, 0, start_of_checksum)
+    start_of_checksum = String.length(official_sample()) - 4
+    without_checksum = String.slice(official_sample(), 0, start_of_checksum)
     wrong_checksum = "ABCD"
     wrong_payload = without_checksum <> wrong_checksum
 
@@ -140,7 +145,7 @@ defmodule MPMTest do
   end
 
   test "official data object sample is valid" do
-    test_data = @official_objects
+    test_data = official_objects()
 
     {result, _} = MP.validate_objects(test_data)
 
@@ -201,7 +206,7 @@ defmodule MPMTest do
   end
 
   test "merchant account information template is parsed into objects" do
-    with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
+    with {:ok, objects} <- MP.parse_to_objects(official_sample()) do
       object_29 = Enum.find(objects, fn x -> x.id == "29" end)
 
       assert object_29 != nil
@@ -334,7 +339,7 @@ defmodule MPMTest do
   end
 
   test "additional data template is parsed into objects" do
-    with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
+    with {:ok, objects} <- MP.parse_to_objects(official_sample()) do
       id_62_raw = id_raw(:root, :additional_data_field_template)
       object_62 = Enum.find(objects, fn x -> x.id == id_62_raw end)
 
@@ -487,7 +492,7 @@ defmodule MPMTest do
     end
 
     test "is parsed into objects" do
-      with {:ok, objects} <- MP.parse_to_objects(@official_sample) do
+      with {:ok, objects} <- MP.parse_to_objects(official_sample()) do
         id_64_raw = id_raw(:root, :merchant_information_language_template)
         object_64 = Enum.find(objects, fn x -> x.id == id_64_raw end)
 
