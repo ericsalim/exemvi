@@ -4,13 +4,25 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to checkout (e.g., v1.0.0)'
+        required: true
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref_name }}
+
+      - name: Show checked-out ref
+        run: |
+          echo "Checked out ref: $(git rev-parse --abbrev-ref HEAD)"
+          echo "Checked out commit: $(git rev-parse HEAD)"
 
       - name: Publish to Hex.pm
         uses: hipcall/github_action_publish_hex@v1
