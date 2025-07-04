@@ -1,3 +1,9 @@
+# ⚠️ DEPRECATED
+
+I'm planning to archive this repository soon - probably in late 2025. Hopefully, that gives anyone interested in maintaining the project enough time to fork it, rename it, and publish their own version of the package.
+
+Since this package involves money transfers, I'm not comfortable transferring ownership to someone else. However, I'll be happy to add a note here pointing visitors to the replacement package once it's available.
+
 # Exemvi
 
 Exemvi is a library to work with EMV QR Code Specification for Payment Systems.
