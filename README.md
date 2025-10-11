@@ -1,8 +1,11 @@
 # ⚠️ DEPRECATED
 
-I'm planning to archive this repository soon - probably in late 2025. Hopefully, that gives anyone interested in maintaining the project enough time to fork it, rename it, and publish their own version of the package.
+I'm no longer maintaining this library.
 
-Since this package involves money transfers, I'm not comfortable transferring ownership to someone else. However, I'll be happy to add a note here pointing visitors to the replacement package once it's available.
+Alternative forks:
+- [ex_emvqr](https://github.com/mono-colombia/ex_emvqr)
+
+Note: I am not affiliated with these forks, and I am not responsible for their content.
 
 # Exemvi
 
